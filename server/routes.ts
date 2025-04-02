@@ -580,6 +580,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!templateId) {
         return res.status(400).json({ message: "Template ID is required" });
+
+  // Analytics routes
+  apiRouter.get("/analytics/lead-sources", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    try {
+      const userId = req.user.id;
+      const timeframe = req.query.timeframe || 'year';
+      const result = await storage.getLeadSourcesAnalytics(userId, timeframe);
+      res.json(result);
+    } catch (error) {
+      console.error("Error fetching lead sources analytics:", error);
+      res.status(500).json({ message: "Error fetching analytics data" });
+    }
+  });
+
+  apiRouter.get("/analytics/lead-activity", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    try {
+      const userId = req.user.id;
+      const timeframe = req.query.timeframe || 'year';
+      const result = await storage.getLeadActivityAnalytics(userId, timeframe);
+      res.json(result);
+    } catch (error) {
+      console.error("Error fetching lead activity analytics:", error);
+      res.status(500).json({ message: "Error fetching analytics data" });
+    }
+  });
+
+  apiRouter.get("/analytics/property-types", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    try {
+      const userId = req.user.id;
+      const timeframe = req.query.timeframe || 'year';
+      const result = await storage.getPropertyTypesAnalytics(userId, timeframe);
+      res.json(result);
+    } catch (error) {
+      console.error("Error fetching property types analytics:", error);
+      res.status(500).json({ message: "Error fetching analytics data" });
+    }
+  });
+
+  apiRouter.get("/analytics/revenue", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    try {
+      const userId = req.user.id;
+      const timeframe = req.query.timeframe || 'year';
+      const result = await storage.getRevenueAnalytics(userId, timeframe);
+      res.json(result);
+    } catch (error) {
+      console.error("Error fetching revenue analytics:", error);
+      res.status(500).json({ message: "Error fetching analytics data" });
+    }
+  });
+
       }
       
       const template = getDocumentTemplate(templateId);

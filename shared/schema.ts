@@ -203,3 +203,71 @@ export type InsertDocument = z.infer<typeof enhancedInsertDocumentSchema>;
 
 export type ScrapingJob = typeof scrapingJobs.$inferSelect;
 export type InsertScrapingJob = z.infer<typeof enhancedInsertScrapingJobSchema>;
+
+
+// Analytics schema
+export const analyticsLeadSources = pgTable("analytics_lead_sources", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  value: integer("value").notNull(),
+  color: text("color"),
+  userId: integer("user_id").references(() => users.id),
+  date: timestamp("date").defaultNow(),
+});
+
+export const analyticsLeadActivity = pgTable("analytics_lead_activity", {
+  id: serial("id").primaryKey(),
+  month: text("month").notNull(),
+  leads: integer("leads").notNull(),
+  contacts: integer("contacts").notNull(),
+  deals: integer("deals").notNull(),
+  userId: integer("user_id").references(() => users.id),
+  date: timestamp("date").defaultNow(),
+});
+
+export const analyticsPropertyTypes = pgTable("analytics_property_types", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  value: integer("value").notNull(),
+  color: text("color"),
+  userId: integer("user_id").references(() => users.id),
+  date: timestamp("date").defaultNow(),
+});
+
+export const analyticsRevenue = pgTable("analytics_revenue", {
+  id: serial("id").primaryKey(),
+  month: text("month").notNull(),
+  revenue: integer("revenue").notNull(),
+  profit: integer("profit").notNull(),
+  cost: integer("cost").notNull(),
+  userId: integer("user_id").references(() => users.id),
+  date: timestamp("date").defaultNow(),
+});
+
+// Add to relations
+export const relations = {
+  users: {
+    // ... existing relations ...
+    analyticsLeadSources: {
+      relationName: "user_analytics_lead_sources",
+      foreignKey: analyticsLeadSources.userId,
+      references: () => users.id,
+    },
+    analyticsLeadActivity: {
+      relationName: "user_analytics_lead_activity",
+      foreignKey: analyticsLeadActivity.userId,
+      references: () => users.id,
+    },
+    analyticsPropertyTypes: {
+      relationName: "user_analytics_property_types",
+      foreignKey: analyticsPropertyTypes.userId,
+      references: () => users.id,
+    },
+    analyticsRevenue: {
+      relationName: "user_analytics_revenue",
+      foreignKey: analyticsRevenue.userId,
+      references: () => users.id,
+    },
+  },
+  // ... rest of relations ...
+};
