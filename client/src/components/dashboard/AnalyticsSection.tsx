@@ -164,7 +164,7 @@ export default function AnalyticsSection() {
                           fill="#8884d8"
                           dataKey="value"
                         >
-                          {Array.isArray(leadSourcesData) && leadSourcesData.map((entry: any, index: number) => (
+                          {(leadSourcesData || []).map((entry: any, index: number) => (
                             <Cell key={`cell-${index}`} fill={entry.color || COLORS[index % COLORS.length]} />
                           ))}
                         </Pie>
@@ -204,7 +204,7 @@ export default function AnalyticsSection() {
                           fill="#8884d8"
                           dataKey="value"
                         >
-                          {Array.isArray(leadMotivationData) && leadMotivationData.map((entry: any, index: number) => (
+                          { (leadMotivationData || []).map((entry: any, index: number) => (
                             <Cell key={`cell-${index}`} fill={entry.color} />
                           ))}
                         </Pie>
@@ -275,7 +275,7 @@ export default function AnalyticsSection() {
                           fill="#8884d8"
                           dataKey="value"
                         >
-                          {Array.isArray(propertyTypesData) && propertyTypesData.map((entry: any, index: number) => (
+                          {(propertyTypesData || []).map((entry: any, index: number) => (
                             <Cell key={`cell-${index}`} fill={entry.color} />
                           ))}
                         </Pie>
