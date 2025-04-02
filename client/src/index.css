@@ -3,11 +3,64 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --primary: 250 65% 57%;
+    --primary-foreground: 0 0% 98%;
+    
+    --secondary: 230 30% 15%;
+    --secondary-foreground: 210 20% 98%;
+    
+    --accent: 170 100% 48%;
+    --accent-foreground: 0 0% 9%;
+    
+    --background: 230 30% 15%;
+    --foreground: 210 20% 98%;
+    
+    --card: 224 71% 4%;
+    --card-foreground: 210 20% 98%;
+    
+    --popover: 224 71% 4%;
+    --popover-foreground: 210 20% 98%;
+    
+    --muted: 215 27% 16%;
+    --muted-foreground: 217.9 10.6% 64.9%;
+    
+    --border: 230 15% 20%;
+    --input: 230 15% 20%;
+    
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 20% 98%;
+    
+    --ring: 250 65% 57%;
+  }
+
   * {
     @apply border-border;
   }
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .card-hover {
+    @apply transition-transform duration-200 hover:scale-[1.02];
+  }
+  
+  .highlight-text {
+    @apply text-[#00F5D4];
+  }
+  
+  .sidebar-card {
+    @apply bg-[#1A1A2E] rounded-lg p-4 border-l-4 border-[#6E56CF];
+  }
+  
+  .stat-value {
+    @apply text-xl font-bold text-[#F8F9FA];
+  }
+  
+  .stat-label {
+    @apply text-sm text-muted-foreground;
   }
 }

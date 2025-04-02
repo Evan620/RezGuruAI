@@ -13,55 +13,65 @@ export default function Topbar({ onOpenSidebar, theme, onToggleTheme }: TopbarPr
   const [searchQuery, setSearchQuery] = useState("");
   
   return (
-    <div className="sticky top-0 z-20 bg-background/60 backdrop-blur-md border-b transition-all duration-300">
+    <div className="sticky top-0 z-20 bg-[#1A1A2E]/90 backdrop-blur-md border-b border-[#2A2A3A] transition-all duration-300">
       <div className="flex items-center justify-between h-16 px-4 lg:px-8">
         {/* Mobile Menu Button */}
         <Button 
           onClick={onOpenSidebar} 
           variant="ghost"
           size="icon"
-          className="lg:hidden">
+          className="lg:hidden text-[#F8F9FA] hover:bg-[#2A2A3A] hover:text-[#00F5D4]">
           <i className="fas fa-bars text-lg"></i>
         </Button>
         
-        {/* Breadcrumb and Page Title */}
-        <div className="hidden lg:flex items-center space-x-2 text-sm text-muted-foreground">
-          <span>Home</span>
-          <i className="fas fa-chevron-right text-xs mx-2"></i>
-          <span className="font-medium text-foreground">Dashboard</span>
+        {/* Command Center Header */}
+        <div className="hidden lg:flex items-center space-x-3 text-sm">
+          <span className="text-[#00F5D4] font-mono font-bold">[GURU-COMMAND]</span>
+          <i className="fas fa-chevron-right text-xs mx-1 text-muted-foreground"></i>
+          <span className="bg-[#2A2A3A] px-3 py-1 rounded text-[#F8F9FA] font-mono">TACTICAL_DASHBOARD</span>
+          <div className="ml-3 px-2 py-[2px] text-xs border border-[#00F5D4] text-[#00F5D4] rounded font-mono">
+            OPERATIONAL
+          </div>
         </div>
         
         {/* Search Bar */}
         <div className="hidden md:flex flex-1 max-w-xl mx-auto">
           <div className="relative w-full">
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-[#6E56CF]">
               <i className="fas fa-search text-sm"></i>
             </div>
             <Input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-3 bg-background border-border h-9 rounded-full"
-              placeholder="Search leads, documents, automations..."
+              className="pl-10 pr-3 bg-[#2A2A3A] border-[#3A3A4A] h-9 rounded text-[#F8F9FA] placeholder:text-gray-500 card-hover focus:border-[#6E56CF] focus:ring-1 focus:ring-[#6E56CF]"
+              placeholder="Search targets, assets, operations..."
             />
           </div>
         </div>
         
         {/* Right Navigation */}
         <div className="flex items-center">
+          <div className="hidden sm:flex mr-4 text-sm">
+            <div className="flex items-center bg-[#2A2A3A] px-2 py-1 rounded-md border border-[#3A3A4A]">
+              <div className="animate-pulse h-2 w-2 rounded-full bg-green-500 mr-2"></div>
+              <span className="text-xs text-[#F8F9FA]/80 font-mono">SYSTEM ONLINE</span>
+            </div>
+          </div>
+          
           <Button 
             variant="ghost" 
             size="icon"
-            className="ml-2 rounded-full relative">
+            className="relative text-[#F8F9FA] hover:bg-[#2A2A3A] hover:text-[#00F5D4]">
             <i className="fas fa-bell"></i>
-            <span className="absolute top-0 right-0 w-2 h-2 bg-primary rounded-full"></span>
+            <span className="absolute top-0 right-0 w-2 h-2 bg-[#00F5D4] rounded-full"></span>
           </Button>
           
           <Button 
             variant="ghost" 
             size="icon"
             onClick={onToggleTheme}
-            className="ml-2 rounded-full">
+            className="ml-2 text-[#F8F9FA] hover:bg-[#2A2A3A] hover:text-[#00F5D4]">
             {theme === 'dark' ? (
               <i className="fas fa-sun"></i>
             ) : (
@@ -72,7 +82,7 @@ export default function Topbar({ onOpenSidebar, theme, onToggleTheme }: TopbarPr
           <div className="ml-3 relative">
             <Button 
               variant="ghost" 
-              className="rounded-full p-0 h-9 w-9 bg-primary/10 text-primary"
+              className="p-0 h-9 w-9 bg-[#6E56CF]/30 text-[#6E56CF] hover:bg-[#6E56CF]/50 rounded"
             >
               <i className="fas fa-user text-sm"></i>
             </Button>
