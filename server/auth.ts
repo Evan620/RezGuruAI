@@ -154,6 +154,8 @@ export function setupAuth(app: Express) {
     res.json(userWithoutPassword);
   });
 
+  // Future feature: Password reset
+  /*
   app.post("/api/forgot-password", async (req, res) => {
     try {
       const { email } = req.body;
@@ -162,26 +164,7 @@ export function setupAuth(app: Express) {
         return res.status(400).json({ message: "Email is required" });
       }
 
-      const user = await storage.getUserByEmail(email);
-      if (!user) {
-        // Don't reveal if user exists or not
-        return res.status(200).json({ 
-          message: "If an account exists with this email, you will receive password reset instructions." 
-        });
-      }
-
-      // Generate reset token
-      const resetToken = randomBytes(32).toString('hex');
-      const resetExpiry = new Date(Date.now() + 3600000); // 1 hour
-
-      // Store reset token
-      await storage.updateUser(user.id, {
-        resetToken,
-        resetExpiry
-      });
-
-      // In a real app, send email here
-      // For demo, just return success
+      // For demo, just return success without actual implementation
       res.json({ 
         message: "If an account exists with this email, you will receive password reset instructions." 
       });
@@ -190,10 +173,10 @@ export function setupAuth(app: Express) {
       res.status(500).json({ message: "Error processing request" });
     }
   });
+  */
 
   return {
     hashPassword,
     comparePasswords
   };
-}
 }
