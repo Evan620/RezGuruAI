@@ -90,6 +90,8 @@ export const scrapingJobs = pgTable("scraping_jobs", {
   source: text("source").notNull(), // tax_delinquent, probate, fsbo
   url: text("url"),
   status: text("status").default("pending"), // pending, running, completed, failed
+  notes: text("notes"),
+  schedule: text("schedule"), // JSON string of schedule configuration
   results: json("results"), // array of results
   lastRun: timestamp("last_run"),
   createdAt: timestamp("created_at").defaultNow(),
@@ -181,6 +183,8 @@ export const enhancedInsertScrapingJobSchema = insertScrapingJobSchema.extend({
   source: z.string().min(1),
   status: z.string().default("pending"),
   url: z.string().nullable().optional(),
+  notes: z.string().nullable().optional(),
+  schedule: z.string().nullable().optional(),
   userId: z.number()
 });
 

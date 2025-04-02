@@ -495,6 +495,8 @@ export class MemStorage implements IStorage {
       url: insertJob.url || null,
       status: insertJob.status || null,
       userId: insertJob.userId || null,
+      notes: insertJob.notes || null,
+      schedule: insertJob.schedule || null,
       results: [],
       lastRun: null,
       createdAt: new Date()

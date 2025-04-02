@@ -9,6 +9,7 @@ import {
 import { z } from "zod";
 import { scoreLeadWithAI, updateLeadMotivationScore } from "./services/leadScoringService";
 import { generateDocument, getDocumentTemplates, getDocumentTemplate, DocumentGenerationParams } from "./services/documentGenerationService";
+import { runScrapingJob, createLeadFromScrapingResult, scheduleScrapingJob } from "./services/scrapingService";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const apiRouter = express.Router();
@@ -365,6 +366,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     
     res.status(204).end();
+  });
+  
+  // Run a scraping job
+  apiRouter.post("/scraping-jobs/:id/run", async (req, res) => {
+    try {
+      const jobId = parseInt(req.params.id);
+      const job = await storage.getScrapingJob(jobId);
+      
+      if (!job) {
+        return res.status(404).json({ message: "Scraping job not found" });
+      }
+      
+      const results = await runScrapingJob(jobId);
+      res.json({ success: true, results });
+    } catch (error) {
+      console.error("Error running scraping job:", error);
+      res.status(500).json({ 
+        message: "Error running scraping job", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+  
+  // Schedule a scraping job
+  apiRouter.post("/scraping-jobs/:id/schedule", async (req, res) => {
+    try {
+      const jobId = parseInt(req.params.id);
+      const job = await storage.getScrapingJob(jobId);
+      
+      if (!job) {
+        return res.status(404).json({ message: "Scraping job not found" });
+      }
+      
+      const updatedJob = await scheduleScrapingJob(jobId, req.body);
+      res.json(updatedJob);
+    } catch (error) {
+      console.error("Error scheduling scraping job:", error);
+      res.status(500).json({ 
+        message: "Error scheduling scraping job", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+  
+  // Create a lead from a scraping result
+  apiRouter.post("/scraping-jobs/:jobId/results/:resultId/create-lead", async (req, res) => {
+    try {
+      const jobId = parseInt(req.params.jobId);
+      const resultId = req.params.resultId;
+      const userId = 1; // Demo user
+      
+      const job = await storage.getScrapingJob(jobId);
+      if (!job) {
+        return res.status(404).json({ message: "Scraping job not found" });
+      }
+      
+      const lead = await createLeadFromScrapingResult(resultId, jobId, userId);
+      res.status(201).json(lead);
+    } catch (error) {
+      console.error("Error creating lead from scraping result:", error);
+      res.status(500).json({ 
+        message: "Error creating lead from scraping result", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
   });
   
   // AI lead scoring endpoint
