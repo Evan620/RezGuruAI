@@ -1,4 +1,4 @@
-import ChatInterface from "@/components/chat/ChatInterface";
+import { ChatInterface } from "@/components/chat/ChatInterface";
 
 export default function Assistant() {
   return (
@@ -10,7 +10,9 @@ export default function Assistant() {
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          <ChatInterface className="h-[700px]" />
+          <div className="h-[700px]">
+            <ChatInterface />
+          </div>
         </div>
         
         <div className="space-y-6">

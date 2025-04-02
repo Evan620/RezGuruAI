@@ -10,6 +10,7 @@ import { z } from "zod";
 import { scoreLeadWithAI, updateLeadMotivationScore } from "./services/leadScoringService";
 import { generateDocument, getDocumentTemplates, getDocumentTemplate, DocumentGenerationParams } from "./services/documentGenerationService";
 import { runScrapingJob, createLeadFromScrapingResult, scheduleScrapingJob } from "./services/scrapingService";
+import { processUserMessage, AIMessage } from "./services/aiService";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const apiRouter = express.Router();
@@ -571,6 +572,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         message: "Error generating document", 
         error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+  
+  // AI Assistant chat endpoint
+  apiRouter.post("/ai/chat", async (req, res) => {
+    try {
+      const { messages } = req.body;
+      
+      if (!messages || !Array.isArray(messages)) {
+        return res.status(400).json({ message: "Messages array is required" });
+      }
+      
+      const userId = 1; // Demo user
+      
+      // Process the message with the AI assistant
+      const response = await processUserMessage(messages, userId);
+      
+      res.json(response);
+    } catch (error) {
+      console.error("Error processing chat message:", error);
+      res.status(500).json({ 
+        message: "Error processing chat message", 
+        error: error instanceof Error ? error.message : String(error) 
       });
     }
   });
