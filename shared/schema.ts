@@ -9,6 +9,8 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
   fullName: text("full_name"),
   plan: text("plan").default("free"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
@@ -101,18 +103,99 @@ export const insertScrapingJobSchema = createInsertSchema(scrapingJobs).omit({
   createdAt: true,
 });
 
+// Define relations between tables
+export const relations = {
+  users: {
+    leads: {
+      relationName: "user_leads",
+      foreignKey: leads.userId,
+      references: () => users.id,
+    },
+    workflows: {
+      relationName: "user_workflows",
+      foreignKey: workflows.userId,
+      references: () => users.id,
+    },
+    documents: {
+      relationName: "user_documents",
+      foreignKey: documents.userId,
+      references: () => users.id,
+    },
+    scrapingJobs: {
+      relationName: "user_scraping_jobs",
+      foreignKey: scrapingJobs.userId,
+      references: () => users.id,
+    }
+  },
+  leads: {
+    documents: {
+      relationName: "lead_documents",
+      foreignKey: documents.leadId,
+      references: () => leads.id,
+    }
+  }
+};
+
+// Enhance insert schemas to ensure required fields
+export const enhancedInsertUserSchema = insertUserSchema.extend({
+  username: z.string().min(3),
+  password: z.string().min(6),
+  fullName: z.string().nullable().optional(),
+  plan: z.string().default("free")
+});
+
+export const enhancedInsertLeadSchema = insertLeadSchema.extend({
+  name: z.string().min(1),
+  source: z.string().min(1),
+  status: z.string().default("new"),
+  address: z.string().nullable().optional(),
+  city: z.string().nullable().optional(),
+  state: z.string().nullable().optional(),
+  zip: z.string().nullable().optional(),
+  phone: z.string().nullable().optional(),
+  email: z.string().nullable().optional(),
+  userId: z.number()
+});
+
+export const enhancedInsertWorkflowSchema = insertWorkflowSchema.extend({
+  name: z.string().min(1),
+  trigger: z.string().min(1),
+  actions: z.array(z.any()),
+  description: z.string().nullable().optional(),
+  active: z.boolean().default(true),
+  userId: z.number()
+});
+
+export const enhancedInsertDocumentSchema = insertDocumentSchema.extend({
+  name: z.string().min(1),
+  type: z.string().min(1),
+  status: z.string().default("draft"),
+  content: z.string().nullable().optional(),
+  url: z.string().nullable().optional(),
+  leadId: z.number().nullable().optional(),
+  userId: z.number()
+});
+
+export const enhancedInsertScrapingJobSchema = insertScrapingJobSchema.extend({
+  name: z.string().min(1),
+  source: z.string().min(1),
+  status: z.string().default("pending"),
+  url: z.string().nullable().optional(),
+  userId: z.number()
+});
+
 // Export types
 export type User = typeof users.$inferSelect;
-export type InsertUser = z.infer<typeof insertUserSchema>;
+export type InsertUser = z.infer<typeof enhancedInsertUserSchema>;
 
 export type Lead = typeof leads.$inferSelect;
-export type InsertLead = z.infer<typeof insertLeadSchema>;
+export type InsertLead = z.infer<typeof enhancedInsertLeadSchema>;
 
 export type Workflow = typeof workflows.$inferSelect;
-export type InsertWorkflow = z.infer<typeof insertWorkflowSchema>;
+export type InsertWorkflow = z.infer<typeof enhancedInsertWorkflowSchema>;
 
 export type Document = typeof documents.$inferSelect;
-export type InsertDocument = z.infer<typeof insertDocumentSchema>;
+export type InsertDocument = z.infer<typeof enhancedInsertDocumentSchema>;
 
 export type ScrapingJob = typeof scrapingJobs.$inferSelect;
-export type InsertScrapingJob = z.infer<typeof insertScrapingJobSchema>;
+export type InsertScrapingJob = z.infer<typeof enhancedInsertScrapingJobSchema>;

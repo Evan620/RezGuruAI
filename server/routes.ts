@@ -2,8 +2,8 @@ import express, { type Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { 
-  insertLeadSchema, insertWorkflowSchema, 
-  insertDocumentSchema, insertScrapingJobSchema
+  enhancedInsertLeadSchema, enhancedInsertWorkflowSchema, 
+  enhancedInsertDocumentSchema, enhancedInsertScrapingJobSchema
 } from "@shared/schema";
 import { z } from "zod";
 
@@ -75,7 +75,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   apiRouter.post("/leads", async (req, res) => {
     try {
-      const data = insertLeadSchema.parse({ ...req.body, userId: 1 });
+      const data = enhancedInsertLeadSchema.parse({ ...req.body, userId: 1 });
       const lead = await storage.createLead(data);
       res.status(201).json(lead);
     } catch (error) {
@@ -142,7 +142,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   apiRouter.post("/workflows", async (req, res) => {
     try {
-      const data = insertWorkflowSchema.parse({ ...req.body, userId: 1 });
+      const data = enhancedInsertWorkflowSchema.parse({ ...req.body, userId: 1 });
       const workflow = await storage.createWorkflow(data);
       res.status(201).json(workflow);
     } catch (error) {
@@ -214,7 +214,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   apiRouter.post("/documents", async (req, res) => {
     try {
-      const data = insertDocumentSchema.parse({ ...req.body, userId: 1 });
+      const data = enhancedInsertDocumentSchema.parse({ ...req.body, userId: 1 });
       const document = await storage.createDocument(data);
       res.status(201).json(document);
     } catch (error) {
@@ -281,7 +281,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   apiRouter.post("/scraping-jobs", async (req, res) => {
     try {
-      const data = insertScrapingJobSchema.parse({ ...req.body, userId: 1 });
+      const data = enhancedInsertScrapingJobSchema.parse({ ...req.body, userId: 1 });
       const job = await storage.createScrapingJob(data);
       res.status(201).json(job);
     } catch (error) {
