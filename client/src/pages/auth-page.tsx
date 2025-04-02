@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "../lib/queryClient";
 
 export default function AuthPage() {
   const { toast } = useToast();
@@ -22,6 +24,64 @@ export default function AuthPage() {
     password: "",
     fullName: "",
   });
+  
+  // Password reset states
+  const [forgotUsername, setForgotUsername] = useState("");
+  const [resetStage, setResetStage] = useState("request"); // request, confirm
+  const [resetToken, setResetToken] = useState("");
+  const [userId, setUserId] = useState(0);
+  const [newPassword, setNewPassword] = useState("");
+  
+  // Password reset request mutation
+  const forgotPasswordMutation = useMutation({
+    mutationFn: async (username: string) => {
+      const res = await apiRequest("POST", "/api/forgot-password", { username });
+      return await res.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Reset Instructions Sent",
+        description: data.message,
+      });
+      
+      if (data.resetToken) {
+        setResetToken(data.resetToken);
+        setUserId(data.userId);
+        setResetStage("confirm");
+      }
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // Password reset confirmation mutation
+  const resetPasswordMutation = useMutation({
+    mutationFn: async (data: { userId: number, resetToken: string, newPassword: string }) => {
+      const res = await apiRequest("POST", "/api/reset-password", data);
+      return await res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Password Reset Successful",
+        description: "Your password has been reset. You can now log in with your new password.",
+      });
+      setActiveTab("login");
+      setResetStage("request");
+      setNewPassword("");
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
 
   // If user is already logged in, redirect to homepage
   if (user) {
@@ -33,9 +93,10 @@ export default function AuthPage() {
       {/* Left column with forms */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-md">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="login">Login</TabsTrigger>
             <TabsTrigger value="register">Register</TabsTrigger>
+            <TabsTrigger value="forgot">Reset</TabsTrigger>
           </TabsList>
           
           {/* Login Form */}
@@ -68,6 +129,15 @@ export default function AuthPage() {
                     onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
                     placeholder="Enter your password"
                   />
+                </div>
+                <div className="flex justify-end">
+                  <Button
+                    variant="link"
+                    className="px-0 text-sm text-muted-foreground hover:text-primary"
+                    onClick={() => setActiveTab("forgot")}
+                  >
+                    Forgot password?
+                  </Button>
                 </div>
               </CardContent>
               <CardFooter>
@@ -141,6 +211,75 @@ export default function AuthPage() {
                     </>
                   ) : "Register"}
                 </Button>
+              </CardFooter>
+            </Card>
+          </TabsContent>
+          
+          {/* Forgot Password Form */}
+          <TabsContent value="forgot">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-2xl font-bold bg-gradient-to-r from-[#6E56CF] to-[#00F5D4] bg-clip-text text-transparent">
+                  Reset Password
+                </CardTitle>
+                <CardDescription>
+                  {resetStage === "request" 
+                    ? "Enter your username to receive password reset instructions" 
+                    : "Enter your new password to complete the reset process"}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {resetStage === "request" ? (
+                  <div className="space-y-2">
+                    <Label htmlFor="reset-username">Username</Label>
+                    <Input
+                      id="reset-username"
+                      value={forgotUsername}
+                      onChange={(e) => setForgotUsername(e.target.value)}
+                      placeholder="Enter your username"
+                    />
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Label htmlFor="new-password">New Password</Label>
+                    <Input
+                      id="new-password"
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Enter your new password"
+                    />
+                  </div>
+                )}
+              </CardContent>
+              <CardFooter>
+                {resetStage === "request" ? (
+                  <Button
+                    className="w-full bg-gradient-to-r from-[#6E56CF] to-[#00F5D4] hover:from-[#5A46AE] hover:to-[#00D9C0]"
+                    onClick={() => forgotPasswordMutation.mutate(forgotUsername)}
+                    disabled={forgotPasswordMutation.isPending || !forgotUsername}
+                  >
+                    {forgotPasswordMutation.isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Sending...
+                      </>
+                    ) : "Send Reset Instructions"}
+                  </Button>
+                ) : (
+                  <Button
+                    className="w-full bg-gradient-to-r from-[#6E56CF] to-[#00F5D4] hover:from-[#5A46AE] hover:to-[#00D9C0]"
+                    onClick={() => resetPasswordMutation.mutate({ userId, resetToken, newPassword })}
+                    disabled={resetPasswordMutation.isPending || !newPassword}
+                  >
+                    {resetPasswordMutation.isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Resetting...
+                      </>
+                    ) : "Reset Password"}
+                  </Button>
+                )}
               </CardFooter>
             </Card>
           </TabsContent>
