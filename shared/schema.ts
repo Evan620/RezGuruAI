@@ -244,30 +244,27 @@ export const analyticsRevenue = pgTable("analytics_revenue", {
   date: timestamp("date").defaultNow(),
 });
 
-// Add to relations
-export const relations = {
-  users: {
-    // ... existing relations ...
-    analyticsLeadSources: {
-      relationName: "user_analytics_lead_sources",
-      foreignKey: analyticsLeadSources.userId,
-      references: () => users.id,
-    },
-    analyticsLeadActivity: {
-      relationName: "user_analytics_lead_activity",
-      foreignKey: analyticsLeadActivity.userId,
-      references: () => users.id,
-    },
-    analyticsPropertyTypes: {
-      relationName: "user_analytics_property_types",
-      foreignKey: analyticsPropertyTypes.userId,
-      references: () => users.id,
-    },
-    analyticsRevenue: {
-      relationName: "user_analytics_revenue",
-      foreignKey: analyticsRevenue.userId,
-      references: () => users.id,
-    },
+// Update existing relations with analytics
+relations.users = {
+  ...relations.users,
+  analyticsLeadSources: {
+    relationName: "user_analytics_lead_sources",
+    foreignKey: analyticsLeadSources.userId,
+    references: () => users.id,
   },
-  // ... rest of relations ...
+  analyticsLeadActivity: {
+    relationName: "user_analytics_lead_activity",
+    foreignKey: analyticsLeadActivity.userId,
+    references: () => users.id,
+  },
+  analyticsPropertyTypes: {
+    relationName: "user_analytics_property_types",
+    foreignKey: analyticsPropertyTypes.userId,
+    references: () => users.id,
+  },
+  analyticsRevenue: {
+    relationName: "user_analytics_revenue",
+    foreignKey: analyticsRevenue.userId,
+    references: () => users.id,
+  },
 };
