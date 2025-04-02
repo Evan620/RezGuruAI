@@ -29,7 +29,7 @@ function useClickAway(
 export function FloatingChatButton() {
   const [isOpen, setIsOpen] = useState(false);
   const chatRef = useRef<HTMLDivElement>(null);
-  
+
   // Use a custom hook to detect clicks outside the chat window
   useClickAway(chatRef, () => {
     if (isOpen) setIsOpen(false);
@@ -48,8 +48,12 @@ export function FloatingChatButton() {
                 <Bot size={16} />
               </div>
               <div>
-                <h3 className="text-sm font-medium text-[#F8F9FA]">RezGuru Assistant</h3>
-                <p className="text-xs text-[#F8F9FA]/50">Your real estate AI companion</p>
+                <div className="flex items-center gap-1">
+                <h3 className="text-sm font-medium text-[#F8F9FA]">Guru</h3>
+                <span className="h-2 w-2 rounded-full bg-[#00F5D4]"></span>
+                <span className="text-sm text-[#F8F9FA]/70">Beta</span>
+              </div>
+              <p className="text-xs text-[#F8F9FA]/50">Your real estate AI companion</p>
               </div>
             </div>
             <Button 
@@ -66,7 +70,7 @@ export function FloatingChatButton() {
           </div>
         </div>
       )}
-      
+
       <Button 
         onClick={() => setIsOpen(!isOpen)}
         className="h-14 w-14 rounded-full bg-gradient-to-r from-[#6E56CF] to-[#00F5D4] text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"

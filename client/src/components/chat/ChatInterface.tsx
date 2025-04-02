@@ -26,9 +26,9 @@ export function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: "assistant",
-      content: `**Welcome to RezGuru AI (Beta)** 🏠
+      content: `Hey there! 👋 I'm Guru, your real estate AI companion.
 
-I can help you with lead management, document generation, and real estate automation. What would you like to do?`
+I'm here to help make your real estate journey smoother and more efficient. What can I assist you with today?`
     }
   ]);
   
