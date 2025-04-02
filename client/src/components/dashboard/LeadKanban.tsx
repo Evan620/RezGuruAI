@@ -49,24 +49,24 @@ export default function LeadKanban() {
   return (
     <div className="mb-8">
       <div className="mb-5 flex justify-between items-center">
-        <h2 className="text-xl font-bold text-gray-900">Lead Pipeline</h2>
+        <h3 className="text-lg font-semibold text-[#F8F9FA]">TARGET ACQUISITION PIPELINE</h3>
         <div className="flex space-x-2">
           <Select 
             value={selectedSource}
             onValueChange={setSelectedSource}
           >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="All Lead Sources" />
+            <SelectTrigger className="w-[180px] bg-[#20223A] border-[#2A2A3A] text-[#F8F9FA]">
+              <SelectValue placeholder="All Target Sources" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Lead Sources</SelectItem>
+            <SelectContent className="bg-[#20223A] border-[#2A2A3A] text-[#F8F9FA]">
+              <SelectItem value="all">All Target Sources</SelectItem>
               <SelectItem value="tax_delinquent">Tax Delinquent</SelectItem>
               <SelectItem value="probate">Probate</SelectItem>
               <SelectItem value="fsbo">FSBO</SelectItem>
             </SelectContent>
           </Select>
-          <Button className="bg-primary-600 hover:bg-primary-700">
-            <i className="fas fa-plus mr-2"></i> Add Lead
+          <Button className="bg-[#6E56CF] hover:bg-[#5D46BD] text-white">
+            <span className="mr-2">+</span> Add Target
           </Button>
         </div>
       </div>
@@ -75,19 +75,24 @@ export default function LeadKanban() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {/* New Leads Column */}
         <div>
-          <div className="bg-gray-100 p-4 rounded-t-lg">
+          <div className="bg-[#20223A] p-4 rounded-t border-x border-t border-[#2A2A3A]">
             <div className="flex justify-between items-center">
-              <h3 className="font-semibold text-gray-700">New Leads</h3>
-              <span className="bg-gray-200 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded">
+              <h3 className="font-semibold text-[#F8F9FA] flex items-center">
+                <span className="h-2 w-2 rounded-full bg-[#00F5D4] mr-2"></span>
+                NEW TARGETS
+              </h3>
+              <span className="bg-[#6E56CF]/20 text-[#6E56CF] text-xs monospace-text px-2.5 py-0.5 rounded border border-[#6E56CF]/30">
                 {filteredNewLeads.length}
               </span>
             </div>
           </div>
-          <div className="bg-gray-50 p-2 h-auto min-h-[400px] max-h-[600px] overflow-y-auto rounded-b-lg">
+          <div className="bg-[#1A1A2E] p-2 h-auto min-h-[400px] max-h-[600px] overflow-y-auto rounded-b border-x border-b border-[#2A2A3A]">
             {isLoading ? (
-              <div className="p-4 text-center text-gray-500">Loading leads...</div>
+              <div className="p-4 text-center text-[#CCCED0]">
+                <div className="animate-pulse h-4 w-24 bg-[#20223A] rounded mx-auto"></div>
+              </div>
             ) : filteredNewLeads.length === 0 ? (
-              <div className="p-4 text-center text-gray-500">No new leads found</div>
+              <div className="p-4 text-center text-[#CCCED0]">No new targets found</div>
             ) : (
               filteredNewLeads.map(lead => (
                 <LeadCard 
@@ -102,19 +107,24 @@ export default function LeadKanban() {
 
         {/* Contacted Column */}
         <div>
-          <div className="bg-gray-100 p-4 rounded-t-lg">
+          <div className="bg-[#20223A] p-4 rounded-t border-x border-t border-[#2A2A3A]">
             <div className="flex justify-between items-center">
-              <h3 className="font-semibold text-gray-700">Contacted</h3>
-              <span className="bg-gray-200 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded">
+              <h3 className="font-semibold text-[#F8F9FA] flex items-center">
+                <span className="h-2 w-2 rounded-full bg-[#6E56CF] mr-2"></span>
+                ENGAGEMENT
+              </h3>
+              <span className="bg-[#6E56CF]/20 text-[#6E56CF] text-xs monospace-text px-2.5 py-0.5 rounded border border-[#6E56CF]/30">
                 {filteredContactedLeads.length}
               </span>
             </div>
           </div>
-          <div className="bg-gray-50 p-2 h-auto min-h-[400px] max-h-[600px] overflow-y-auto rounded-b-lg">
+          <div className="bg-[#1A1A2E] p-2 h-auto min-h-[400px] max-h-[600px] overflow-y-auto rounded-b border-x border-b border-[#2A2A3A]">
             {isLoading ? (
-              <div className="p-4 text-center text-gray-500">Loading leads...</div>
+              <div className="p-4 text-center text-[#CCCED0]">
+                <div className="animate-pulse h-4 w-24 bg-[#20223A] rounded mx-auto"></div>
+              </div>
             ) : filteredContactedLeads.length === 0 ? (
-              <div className="p-4 text-center text-gray-500">No contacted leads found</div>
+              <div className="p-4 text-center text-[#CCCED0]">No engaged targets found</div>
             ) : (
               filteredContactedLeads.map(lead => (
                 <LeadCard 
@@ -130,19 +140,24 @@ export default function LeadKanban() {
 
         {/* Closed Column */}
         <div>
-          <div className="bg-gray-100 p-4 rounded-t-lg">
+          <div className="bg-[#20223A] p-4 rounded-t border-x border-t border-[#2A2A3A]">
             <div className="flex justify-between items-center">
-              <h3 className="font-semibold text-gray-700">Closed</h3>
-              <span className="bg-gray-200 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded">
+              <h3 className="font-semibold text-[#F8F9FA] flex items-center">
+                <span className="h-2 w-2 rounded-full bg-[#FF6B6B] mr-2"></span>
+                ACQUIRED
+              </h3>
+              <span className="bg-[#6E56CF]/20 text-[#6E56CF] text-xs monospace-text px-2.5 py-0.5 rounded border border-[#6E56CF]/30">
                 {filteredClosedLeads.length}
               </span>
             </div>
           </div>
-          <div className="bg-gray-50 p-2 h-auto min-h-[400px] max-h-[600px] overflow-y-auto rounded-b-lg">
+          <div className="bg-[#1A1A2E] p-2 h-auto min-h-[400px] max-h-[600px] overflow-y-auto rounded-b border-x border-b border-[#2A2A3A]">
             {isLoading ? (
-              <div className="p-4 text-center text-gray-500">Loading leads...</div>
+              <div className="p-4 text-center text-[#CCCED0]">
+                <div className="animate-pulse h-4 w-24 bg-[#20223A] rounded mx-auto"></div>
+              </div>
             ) : filteredClosedLeads.length === 0 ? (
-              <div className="p-4 text-center text-gray-500">No closed leads found</div>
+              <div className="p-4 text-center text-[#CCCED0]">No acquired targets found</div>
             ) : (
               filteredClosedLeads.map(lead => (
                 <LeadCard 
