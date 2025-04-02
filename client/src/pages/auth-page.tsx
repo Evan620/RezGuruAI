@@ -28,11 +28,43 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen flex">
       {/* Left column with forms */}
+      {/* Add state for active tab */}
+      const [activeTab, setActiveTab] = useState("login");
+      const [forgotEmail, setForgotEmail] = useState("");
+      const [resetSent, setResetSent] = useState(false);
+      
+      const forgotPasswordMutation = useMutation({
+        mutationFn: async (email: string) => {
+          const res = await fetch("/api/forgot-password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email })
+          });
+          if (!res.ok) throw new Error("Failed to send reset email");
+          return res.json();
+        },
+        onSuccess: () => {
+          setResetSent(true);
+          toast({
+            title: "Reset Email Sent",
+            description: "If an account exists with this email, you will receive password reset instructions.",
+          });
+        },
+        onError: (error: Error) => {
+          toast({
+            title: "Error",
+            description: error.message,
+            variant: "destructive",
+          });
+        }
+      });
+
       <div className="w-full md:w-1/2 flex items-center justify-center p-6">
-        <Tabs defaultValue="login" className="w-full max-w-md">
-          <TabsList className="grid w-full grid-cols-2">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-md">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="login">Login</TabsTrigger>
             <TabsTrigger value="register">Register</TabsTrigger>
+            <TabsTrigger value="forgot-password">Reset</TabsTrigger>
           </TabsList>
           
           {/* Login Form */}
@@ -65,6 +97,15 @@ export default function AuthPage() {
                     onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
                     placeholder="Enter your password"
                   />
+                </div>
+                <div className="flex justify-end">
+                  <Button
+                    variant="link"
+                    className="px-0 text-sm text-muted-foreground hover:text-primary"
+                    onClick={() => setActiveTab("forgot-password")}
+                  >
+                    Forgot password?
+                  </Button>
                 </div>
               </CardContent>
               <CardFooter>
@@ -106,6 +147,49 @@ export default function AuthPage() {
                   />
                 </div>
                 <div className="space-y-2">
+
+          {/* Forgot Password Form */}
+          <TabsContent value="forgot-password">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-2xl font-bold bg-gradient-to-r from-[#6E56CF] to-[#00F5D4] bg-clip-text text-transparent">
+                  Reset Password
+                </CardTitle>
+                <CardDescription>
+                  Enter your email to receive password reset instructions
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="reset-email">Email</Label>
+                    <Input
+                      id="reset-email"
+                      type="email"
+                      value={forgotEmail}
+                      onChange={(e) => setForgotEmail(e.target.value)}
+                      placeholder="Enter your email"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button
+                  className="w-full bg-gradient-to-r from-[#6E56CF] to-[#00F5D4] hover:from-[#5A46AE] hover:to-[#00D9C0]"
+                  onClick={() => forgotPasswordMutation.mutate(forgotEmail)}
+                  disabled={forgotPasswordMutation.isPending || !forgotEmail}
+                >
+                  {forgotPasswordMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Sending...
+                    </>
+                  ) : "Send Reset Instructions"}
+                </Button>
+              </CardFooter>
+            </Card>
+          </TabsContent>
+
                   <Label htmlFor="register-username">Username</Label>
                   <Input 
                     id="register-username" 

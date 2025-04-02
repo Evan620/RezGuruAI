@@ -60,12 +60,12 @@ export function setupAuth(app: Express) {
         if (!user) {
           return done(null, false, { message: "Invalid username or password" });
         }
-        
+
         const isValidPassword = await comparePasswords(password, user.password);
         if (!isValidPassword) {
           return done(null, false, { message: "Invalid username or password" });
         }
-        
+
         return done(null, user);
       } catch (error) {
         return done(error);
@@ -76,7 +76,7 @@ export function setupAuth(app: Express) {
   passport.serializeUser((user, done) => {
     done(null, user.id);
   });
-  
+
   passport.deserializeUser(async (id: number, done) => {
     try {
       const user = await storage.getUser(id);
@@ -89,28 +89,28 @@ export function setupAuth(app: Express) {
   app.post("/api/register", async (req, res, next) => {
     try {
       const { username, password, fullName } = req.body;
-      
+
       if (!username || !password) {
         return res.status(400).json({ message: "Username and password are required" });
       }
-      
+
       const existingUser = await storage.getUserByUsername(username);
       if (existingUser) {
         return res.status(400).json({ message: "Username already exists" });
       }
-      
+
       const hashedPassword = await hashPassword(password);
-      
+
       const user = await storage.createUser({
         username,
         password: hashedPassword,
         fullName: fullName || username,
         plan: "free" // Default plan
       });
-      
+
       req.login(user, (err) => {
         if (err) return next(err);
-        
+
         // Return user without password
         const { password, ...userWithoutPassword } = user;
         res.status(201).json(userWithoutPassword);
@@ -126,10 +126,10 @@ export function setupAuth(app: Express) {
       if (!user) {
         return res.status(401).json({ message: info?.message || "Authentication failed" });
       }
-      
+
       req.login(user, (err: Error | null) => {
         if (err) return next(err);
-        
+
         // Return user without password
         const { password, ...userWithoutPassword } = user as SelectUser;
         res.json(userWithoutPassword);
@@ -148,9 +148,48 @@ export function setupAuth(app: Express) {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Not authenticated" });
     }
-    
+
     // Return user without password
     const { password, ...userWithoutPassword } = req.user as SelectUser;
     res.json(userWithoutPassword);
   });
+
+  app.post("/api/forgot-password", async (req, res) => {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        // Don't reveal if user exists or not
+        return res.status(200).json({ 
+          message: "If an account exists with this email, you will receive password reset instructions." 
+        });
+      }
+
+      // Generate reset token
+      const resetToken = randomBytes(32).toString('hex');
+      const resetExpiry = new Date(Date.now() + 3600000); // 1 hour
+
+      // Store reset token
+      await storage.updateUser(user.id, {
+        resetToken,
+        resetExpiry
+      });
+
+      // In a real app, send email here
+      // For demo, just return success
+      res.json({ 
+        message: "If an account exists with this email, you will receive password reset instructions." 
+      });
+    } catch (error) {
+      console.error("Error in forgot password:", error);
+      res.status(500).json({ message: "Error processing request" });
+    }
+  });
+
+  return {
 }
