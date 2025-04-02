@@ -13,7 +13,7 @@ export default function Topbar({ onOpenSidebar, theme, onToggleTheme }: TopbarPr
   const [searchQuery, setSearchQuery] = useState("");
   
   return (
-    <div className="sticky top-0 z-20 bg-[#1A1A2E]/90 backdrop-blur-md border-b border-[#2A2A3A] transition-all duration-300">
+    <div className="sticky top-0 z-20 bg-[#1A1A2E] border-b border-[#2A2A3A] transition-all duration-300">
       <div className="flex items-center justify-between h-16 px-4 lg:px-8">
         {/* Mobile Menu Button */}
         <Button 
