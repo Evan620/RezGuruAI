@@ -11,53 +11,32 @@ import { scoreLeadWithAI, updateLeadMotivationScore } from "./services/leadScori
 import { generateDocument, getDocumentTemplates, getDocumentTemplate, DocumentGenerationParams } from "./services/documentGenerationService";
 import { runScrapingJob, createLeadFromScrapingResult, scheduleScrapingJob } from "./services/scrapingService";
 import { processUserMessage, AIMessage } from "./services/aiService";
+import { setupAuth } from "./auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup authentication
+  setupAuth(app);
+
   const apiRouter = express.Router();
   
-  // Authentication
-  apiRouter.post("/auth/login", async (req, res) => {
-    const { username, password } = req.body;
-    
-    if (!username || !password) {
-      return res.status(400).json({ message: "Username and password are required" });
-    }
-    
-    const user = await storage.getUserByUsername(username);
-    
-    if (!user || user.password !== password) {
-      return res.status(401).json({ message: "Invalid username or password" });
-    }
-    
-    res.json({ 
-      id: user.id, 
-      username: user.username,
-      fullName: user.fullName,
-      plan: user.plan
-    });
-  });
-  
   // User routes
-  apiRouter.get("/users/me", async (req, res) => {
-    // For demo purposes, we'll use user 1
-    const userId = 1;
-    const user = await storage.getUser(userId);
-    
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+  apiRouter.get("/users/me", (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
     }
     
-    res.json({
-      id: user.id,
-      username: user.username,
-      fullName: user.fullName,
-      plan: user.plan
-    });
+    // Return the current authenticated user
+    const { password, ...userWithoutPassword } = req.user as any;
+    res.json(userWithoutPassword);
   });
   
   // Lead routes
   apiRouter.get("/leads", async (req, res) => {
-    const userId = 1; // Demo user
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    const userId = req.user.id;
     const status = req.query.status as string | undefined;
     
     const leads = status 
@@ -79,8 +58,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   apiRouter.post("/leads", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
     try {
-      const data = enhancedInsertLeadSchema.parse({ ...req.body, userId: 1 });
+      const data = enhancedInsertLeadSchema.parse({ ...req.body, userId: req.user.id });
       const lead = await storage.createLead(data);
       res.status(201).json(lead);
     } catch (error) {
@@ -165,7 +148,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Workflow routes
   apiRouter.get("/workflows", async (req, res) => {
-    const userId = 1; // Demo user
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    const userId = req.user.id;
     const workflows = await storage.getWorkflows(userId);
     res.json(workflows);
   });
@@ -182,8 +169,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   apiRouter.post("/workflows", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
     try {
-      const data = enhancedInsertWorkflowSchema.parse({ ...req.body, userId: 1 });
+      const data = enhancedInsertWorkflowSchema.parse({ ...req.body, userId: req.user.id });
       const workflow = await storage.createWorkflow(data);
       res.status(201).json(workflow);
     } catch (error) {
@@ -232,7 +223,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Document routes
   apiRouter.get("/documents", async (req, res) => {
-    const userId = 1; // Demo user
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    const userId = req.user.id;
     const leadId = req.query.leadId ? parseInt(req.query.leadId as string) : undefined;
     
     const documents = leadId
@@ -254,8 +249,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   apiRouter.post("/documents", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
     try {
-      const data = enhancedInsertDocumentSchema.parse({ ...req.body, userId: 1 });
+      const data = enhancedInsertDocumentSchema.parse({ ...req.body, userId: req.user.id });
       const document = await storage.createDocument(data);
       res.status(201).json(document);
     } catch (error) {
@@ -304,7 +303,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Scraping job routes
   apiRouter.get("/scraping-jobs", async (req, res) => {
-    const userId = 1; // Demo user
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    const userId = req.user.id;
     const jobs = await storage.getScrapingJobs(userId);
     res.json(jobs);
   });
@@ -321,8 +324,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   apiRouter.post("/scraping-jobs", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
     try {
-      const data = enhancedInsertScrapingJobSchema.parse({ ...req.body, userId: 1 });
+      const data = enhancedInsertScrapingJobSchema.parse({ ...req.body, userId: req.user.id });
       const job = await storage.createScrapingJob(data);
       res.status(201).json(job);
     } catch (error) {
@@ -413,10 +420,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Create a lead from a scraping result
   apiRouter.post("/scraping-jobs/:jobId/results/:resultId/create-lead", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
     try {
       const jobId = parseInt(req.params.jobId);
       const resultId = req.params.resultId;
-      const userId = 1; // Demo user
+      const userId = req.user.id;
       
       const job = await storage.getScrapingJob(jobId);
       if (!job) {
@@ -436,6 +447,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // AI lead scoring endpoint
   apiRouter.post("/ai/score-lead", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
     try {
       const { leadId } = req.body;
       
@@ -448,6 +463,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!lead) {
         return res.status(404).json({ message: "Lead not found" });
+      }
+      
+      // Verify that the lead belongs to the authenticated user
+      if (lead.userId !== req.user.id) {
+        return res.status(403).json({ message: "You don't have permission to score this lead" });
       }
       
       // Score the lead using AI
@@ -470,7 +490,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error scoring lead:", error);
       res.status(500).json({ 
-        message: "Error scoring lead", 
+        message: "Error scoring lead",
         error: error instanceof Error ? error.message : String(error)
       });
     }
@@ -478,12 +498,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // New endpoint to get AI analysis for a specific lead
   apiRouter.get("/ai/lead-analysis/:id", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
     try {
       const leadId = parseInt(req.params.id);
       const lead = await storage.getLead(leadId);
       
       if (!lead) {
         return res.status(404).json({ message: "Lead not found" });
+      }
+      
+      // Verify that the lead belongs to the authenticated user
+      if (lead.userId !== req.user.id) {
+        return res.status(403).json({ message: "You don't have permission to analyze this lead" });
       }
       
       const scoringResult = await scoreLeadWithAI(lead);
@@ -542,6 +571,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Document generation endpoint
   apiRouter.post("/documents/generate", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
     try {
       const { templateId, leadId, customFields } = req.body;
       
@@ -554,8 +587,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Document template not found" });
       }
       
-      // For demo purposes, use user 1
-      const userId = 1;
+      const userId = req.user.id;
       
       const params: DocumentGenerationParams = {
         templateId,
@@ -578,6 +610,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // AI Assistant chat endpoint
   apiRouter.post("/ai/chat", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
     try {
       const { messages } = req.body;
       
@@ -585,7 +621,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Messages array is required" });
       }
       
-      const userId = 1; // Demo user
+      const userId = req.user.id;
       
       // Process the message with the AI assistant
       const response = await processUserMessage(messages, userId);

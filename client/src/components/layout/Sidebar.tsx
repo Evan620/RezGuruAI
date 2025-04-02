@@ -1,6 +1,15 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "../../lib/utils";
 import { Button } from "../../components/ui/button";
+import { useAuth } from "../../hooks/use-auth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { LogOut, Settings, User } from "lucide-react";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -11,6 +20,7 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, onClose, theme, onToggleTheme }: SidebarProps) {
   const [location] = useLocation();
+  const { user, logoutMutation } = useAuth();
   
   const navigation = [
     { name: "Dashboard", path: "/dashboard", icon: "fas fa-chart-pie" },
@@ -142,15 +152,36 @@ export default function Sidebar({ isOpen, onClose, theme, onToggleTheme }: Sideb
       <div className="absolute bottom-0 w-full border-t border-[#2A2A3A] p-4">
         <div className="flex items-center sidebar-card card-hover">
           <div className="h-10 w-10 rounded bg-[#6E56CF]/20 border border-[#6E56CF]/30 text-[#6E56CF] flex items-center justify-center">
-            <i className="fas fa-user"></i>
+            <User className="h-5 w-5" />
           </div>
           <div className="ml-3 flex-1">
-            <p className="text-sm font-medium text-[#F8F9FA]">Alex Morgan</p>
-            <p className="monospace-text text-[#F8F9FA]/50">Real Estate Agent</p>
+            <p className="text-sm font-medium text-[#F8F9FA]">{user?.fullName || user?.username || "User"}</p>
+            <p className="monospace-text text-[#F8F9FA]/50">{user?.plan === "premium" ? "Premium Account" : "Free Account"}</p>
           </div>
-          <Button variant="ghost" size="icon" className="h-8 w-8 rounded text-[#F8F9FA]/70 hover:text-[#00F5D4] hover:bg-[#2A2A3A]">
-            <i className="fas fa-cog"></i>
-          </Button>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8 rounded text-[#F8F9FA]/70 hover:text-[#00F5D4] hover:bg-[#2A2A3A]">
+                <i className="fas fa-ellipsis-v"></i>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 bg-[#1A1A2E] border-[#2A2A3A] text-[#F8F9FA]">
+              <Link href="/settings">
+                <DropdownMenuItem className="cursor-pointer hover:bg-[#2A2A3A] hover:text-[#00F5D4]">
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Account Settings</span>
+                </DropdownMenuItem>
+              </Link>
+              <DropdownMenuSeparator className="bg-[#2A2A3A]" />
+              <DropdownMenuItem 
+                className="cursor-pointer hover:bg-[#2A2A3A] hover:text-[#00F5D4] focus:bg-[#2A2A3A]"
+                onClick={() => logoutMutation.mutate()}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>{logoutMutation.isPending ? "Logging out..." : "Logout"}</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </aside>

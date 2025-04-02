@@ -10,33 +10,72 @@ import Documents from "@/pages/Documents";
 import Scraping from "@/pages/Scraping";
 import Settings from "@/pages/Settings";
 import Help from "@/pages/Help";
-
+import AuthPage from "@/pages/auth-page";
 import Layout from "./components/layout/Layout";
+import { AuthProvider } from "@/hooks/use-auth";
+import { ProtectedRoute } from "./lib/protected-route";
 
 function Router() {
   return (
-    <Layout>
-      <Switch>
-        <Route path="/" component={Dashboard} />
-        <Route path="/dashboard" component={Dashboard} />
-        <Route path="/leads" component={Leads} />
-        <Route path="/automations" component={Automations} />
-        <Route path="/documents" component={Documents} />
-        <Route path="/scraping" component={Scraping} />
-        <Route path="/settings" component={Settings} />
-        <Route path="/help" component={Help} />
-        {/* Fallback to 404 */}
-        <Route component={NotFound} />
-      </Switch>
-    </Layout>
+    <Switch>
+      {/* Auth page (public) */}
+      <Route path="/auth" component={AuthPage} />
+      
+      {/* Protected routes (requires authentication) */}
+      <ProtectedRoute path="/" component={() => (
+        <Layout>
+          <Dashboard />
+        </Layout>
+      )} />
+      <ProtectedRoute path="/dashboard" component={() => (
+        <Layout>
+          <Dashboard />
+        </Layout>
+      )} />
+      <ProtectedRoute path="/leads" component={() => (
+        <Layout>
+          <Leads />
+        </Layout>
+      )} />
+      <ProtectedRoute path="/automations" component={() => (
+        <Layout>
+          <Automations />
+        </Layout>
+      )} />
+      <ProtectedRoute path="/documents" component={() => (
+        <Layout>
+          <Documents />
+        </Layout>
+      )} />
+      <ProtectedRoute path="/scraping" component={() => (
+        <Layout>
+          <Scraping />
+        </Layout>
+      )} />
+      <ProtectedRoute path="/settings" component={() => (
+        <Layout>
+          <Settings />
+        </Layout>
+      )} />
+      <ProtectedRoute path="/help" component={() => (
+        <Layout>
+          <Help />
+        </Layout>
+      )} />
+      
+      {/* Fallback to 404 */}
+      <Route component={NotFound} />
+    </Switch>
   );
 }
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router />
-      <Toaster />
+      <AuthProvider>
+        <Router />
+        <Toaster />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
