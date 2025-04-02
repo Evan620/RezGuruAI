@@ -206,7 +206,7 @@ export default function AnalyticsSection() {
                         >
                           {Array.isArray(leadMotivationData?.data) ? leadMotivationData.data.map((entry: any, index: number) => (
                             <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
+                          )) : null}
                         </Pie>
                         <Tooltip formatter={(value) => [`${value} leads`, 'Count']} />
                         <Legend />
