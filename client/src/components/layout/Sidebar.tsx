@@ -1,12 +1,15 @@
 import { Link, useLocation } from "wouter";
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
+import { Button } from "../../components/ui/button";
 
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  theme: "dark" | "light";
+  onToggleTheme: () => void;
 }
 
-export default function Sidebar({ isOpen, onClose }: SidebarProps) {
+export default function Sidebar({ isOpen, onClose, theme, onToggleTheme }: SidebarProps) {
   const [location] = useLocation();
   
   const navigation = [
@@ -32,64 +35,91 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   return (
     <aside 
       className={cn(
-        "fixed inset-y-0 left-0 w-64 bg-primary-800 text-white transition duration-200 transform z-30",
+        "fixed inset-y-0 left-0 w-72 bg-background border-r border-border transition-all duration-300 transform z-30 shadow-lg dark:shadow-primary/10",
         isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       )}>
       
       {/* Logo Area */}
-      <div className="flex items-center justify-between px-4 h-16 border-b border-primary-700">
+      <div className="flex items-center justify-between px-6 h-20 border-b">
         <div className="flex items-center">
-          <i className="fas fa-home-alt text-accent-500 text-xl mr-2"></i>
-          <span className="font-bold text-lg">RezGuru AI</span>
+          <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white mr-3">
+            <i className="fas fa-home-alt text-lg"></i>
+          </div>
+          <div>
+            <span className="font-bold text-xl bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent">RezGuru AI</span>
+            <p className="text-xs text-muted-foreground">Real Estate Intelligence</p>
+          </div>
         </div>
-        <button 
+        <Button 
           onClick={onClose}
-          className="lg:hidden text-white hover:text-gray-300 focus:outline-none">
+          variant="ghost"
+          size="icon"
+          className="lg:hidden">
           <i className="fas fa-times"></i>
-        </button>
+        </Button>
       </div>
       
       {/* Navigation */}
-      <nav className="mt-6 px-2">
-        <div className="space-y-1">
+      <nav className="mt-6 px-4">
+        <div className="space-y-1.5">
           {navigation.map((item) => (
             <Link 
               key={item.name}
               href={item.path}
               className={cn(
-                "flex items-center px-4 py-3 text-base rounded-md group",
+                "flex items-center px-4 py-3 text-sm rounded-lg group transition-all duration-200",
                 isActive(item.path)
-                  ? "bg-primary-700 text-white"
-                  : "text-gray-300 hover:bg-primary-700 hover:text-white"
+                  ? "bg-primary/10 text-primary font-medium"
+                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
               )}>
-              <i className={cn(
-                item.icon, 
-                "mr-3",
-                isActive(item.path) ? "text-white" : "text-gray-400 group-hover:text-white"
-              )}></i>
+              <div className={cn(
+                "h-8 w-8 rounded-md flex items-center justify-center mr-3",
+                isActive(item.path) 
+                  ? "bg-primary/20 text-primary" 
+                  : "bg-muted text-muted-foreground group-hover:bg-accent/50 group-hover:text-foreground"
+              )}>
+                <i className={item.icon}></i>
+              </div>
               <span>{item.name}</span>
             </Link>
           ))}
         </div>
 
         <div className="mt-8">
-          <h3 className="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Settings</h3>
-          <div className="mt-2 space-y-1">
+          <div className="px-4 flex items-center justify-between">
+            <h3 className="text-xs font-semibold text-muted-foreground">Settings</h3>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={onToggleTheme} 
+              className="h-7 w-7 rounded-md text-muted-foreground hover:text-foreground"
+            >
+              {theme === 'dark' ? (
+                <i className="fas fa-sun"></i>
+              ) : (
+                <i className="fas fa-moon"></i>
+              )}
+            </Button>
+          </div>
+          <div className="mt-2 space-y-1.5">
             {settings.map((item) => (
               <Link 
                 key={item.name}
                 href={item.path}
                 className={cn(
-                  "flex items-center px-4 py-3 text-base rounded-md group",
+                  "flex items-center px-4 py-3 text-sm rounded-lg group transition-all duration-200",
                   isActive(item.path)
-                    ? "bg-primary-700 text-white"
-                    : "text-gray-300 hover:bg-primary-700 hover:text-white"
+                    ? "bg-primary/10 text-primary font-medium"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground"
                 )}>
-                <i className={cn(
-                  item.icon, 
-                  "mr-3",
-                  isActive(item.path) ? "text-white" : "text-gray-400 group-hover:text-white"
-                )}></i>
+                <div className={cn(
+                  "h-8 w-8 rounded-md flex items-center justify-center mr-3",
+                  isActive(item.path) 
+                    ? "bg-primary/20 text-primary" 
+                    : "bg-muted text-muted-foreground group-hover:bg-accent/50 group-hover:text-foreground"
+                )}>
+                  <i className={item.icon}></i>
+                </div>
                 <span>{item.name}</span>
               </Link>
             ))}
@@ -98,15 +128,18 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       </nav>
 
       {/* User Menu */}
-      <div className="absolute bottom-0 w-full border-t border-primary-700">
-        <div className="flex items-center px-4 py-3">
-          <div className="h-8 w-8 rounded-full bg-gray-500 flex items-center justify-center text-white">
-            <i className="fas fa-user text-sm"></i>
+      <div className="absolute bottom-0 w-full border-t p-4">
+        <div className="flex items-center bg-accent/50 rounded-lg p-3">
+          <div className="h-10 w-10 rounded-full bg-primary/20 text-primary flex items-center justify-center">
+            <i className="fas fa-user"></i>
           </div>
-          <div className="ml-3">
-            <p className="text-sm font-medium text-white">Alex Morgan</p>
-            <p className="text-xs font-medium text-gray-300">Free Plan</p>
+          <div className="ml-3 flex-1">
+            <p className="text-sm font-medium">Alex Morgan</p>
+            <p className="text-xs text-muted-foreground">Free Plan</p>
           </div>
+          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-md text-muted-foreground hover:text-foreground">
+            <i className="fas fa-cog"></i>
+          </Button>
         </div>
       </div>
     </aside>

@@ -10,7 +10,7 @@ import Documents from "@/pages/Documents";
 import Scraping from "@/pages/Scraping";
 import Settings from "@/pages/Settings";
 import Help from "@/pages/Help";
-import Layout from "@/components/layout/Layout";
+import Layout from "./components/layout/Layout";
 
 function Router() {
   return (
