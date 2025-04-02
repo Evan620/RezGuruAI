@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 import { useLocalStorage } from "../../hooks/use-local-storage";
+import { FloatingChatButton } from "../chat/FloatingChatButton";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -50,16 +51,17 @@ export default function Layout({ children }: LayoutProps) {
           <footer className="mt-12 border-t border-[#2A2A3A] pt-4 text-xs">
             <div className="flex justify-between items-center">
               <div>
-                <span className="highlight-text monospace-text">[CLASSIFIED]</span> 
-                <span className="text-[#F8F9FA]"> RezGuru AI Command Center</span>
+                <span className="highlight-text monospace-text">RezGuru AI</span> 
+                <span className="text-[#F8F9FA]"> Real Estate Automation Platform</span>
               </div>
               <div className="text-right monospace-text">
-                <div>MISSION STATUS: <span className="text-[#00F5D4]">ACTIVE</span></div>
+                <div>Status: <span className="text-[#00F5D4]">Active</span></div>
               </div>
             </div>
           </footer>
         </main>
       </div>
+      <FloatingChatButton />
     </div>
   );
 }

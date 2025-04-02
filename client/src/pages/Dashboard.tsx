@@ -46,44 +46,44 @@ export default function Dashboard() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-bold text-[#F8F9FA]">COMMAND CENTER</h1>
+                <h1 className="text-2xl font-bold text-[#F8F9FA]">INSIGHT HUB</h1>
                 <span className="status-badge-active">
-                  SECURE
+                  ACTIVE
                 </span>
               </div>
               <p className="mt-1 text-[#CCCED0]">
-                <span className="monospace-text">CODENAME:</span> RezGuru Real Estate Operations
+                <span className="monospace-text">PLATFORM:</span> RezGuru Real Estate Operations
               </p>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" className="gap-2 tactical-button-secondary">
               <FileDown className="h-4 w-4" />
-              Export Intel
+              Export Data
             </Button>
             <Button className="gap-2 tactical-button">
               <Target className="h-4 w-4" />
-              New Target
+              New Lead
             </Button>
           </div>
         </div>
         
-        {/* Tactical Status Bar */}
+        {/* Status Bar */}
         <div className="flex mt-4 text-xs border border-[#2A2A3A] rounded overflow-hidden divide-x divide-[#2A2A3A]">
           <div className="bg-[#20223A] px-3 py-1.5 text-[#CCCED0] flex items-center">
             <Radio className="h-3 w-3 mr-1.5 text-[#00F5D4]" />
-            <span className="monospace-text">MISSION STATUS: ACTIVE</span>
+            <span className="monospace-text">SYSTEM STATUS: ONLINE</span>
           </div>
           <div className="bg-[#20223A] px-3 py-1.5 text-[#CCCED0] flex items-center">
             <AlertTriangle className="h-3 w-3 mr-1.5 text-[#FF6B6B]" />
-            <span className="monospace-text">ALERTS: 3</span>
+            <span className="monospace-text">NOTIFICATIONS: 3</span>
           </div>
           <div className="bg-[#20223A] px-3 py-1.5 text-[#CCCED0] flex items-center">
             <Crosshair className="h-3 w-3 mr-1.5 text-[#6E56CF]" />
-            <span className="monospace-text">TARGETS: 248</span>
+            <span className="monospace-text">ACTIVE LEADS: 248</span>
           </div>
           <div className="bg-[#20223A] px-3 py-1.5 text-[#CCCED0] ml-auto flex items-center">
-            <span className="monospace-text">GRID REF: 37.7749° N, 122.4194° W</span>
+            <span className="monospace-text">LOCATION: SAN FRANCISCO, CA</span>
           </div>
         </div>
       </div>
@@ -93,15 +93,15 @@ export default function Dashboard() {
           <TabsList className="bg-[#20223A] border border-[#2A2A3A] p-1">
             <TabsTrigger value="overview" className="data-[state=active]:bg-[#6E56CF] data-[state=active]:text-white">
               <Zap className="h-4 w-4 mr-2" />
-              SITREP
+              DASHBOARD
             </TabsTrigger>
             <TabsTrigger value="analytics" className="data-[state=active]:bg-[#6E56CF] data-[state=active]:text-white">
               <BarChart3 className="h-4 w-4 mr-2" />
-              INTELLIGENCE
+              ANALYTICS
             </TabsTrigger>
             <TabsTrigger value="properties" className="data-[state=active]:bg-[#6E56CF] data-[state=active]:text-white">
               <Map className="h-4 w-4 mr-2" />
-              RECON
+              PROPERTIES
             </TabsTrigger>
             <TabsTrigger value="reports" className="data-[state=active]:bg-[#6E56CF] data-[state=active]:text-white">
               <Shield className="h-4 w-4 mr-2" />
@@ -136,7 +136,7 @@ export default function Dashboard() {
               <div className="flex justify-between items-center mb-2">
                 <h2 className="text-lg font-semibold text-[#F8F9FA] flex items-center">
                   <Radar className="h-5 w-5 mr-2 text-[#6E56CF]" />
-                  INTEL & REPORTING
+                  INSIGHTS & REPORTING
                 </h2>
                 <Button 
                   variant="ghost" 
@@ -157,7 +157,7 @@ export default function Dashboard() {
               <div className="flex justify-between items-center mb-2">
                 <h2 className="text-lg font-semibold text-[#F8F9FA] flex items-center">
                   <Crosshair className="h-5 w-5 mr-2 text-[#6E56CF]" />
-                  TARGET TRACKING
+                  LEAD PIPELINE
                 </h2>
                 <Button 
                   variant="ghost" 
@@ -178,7 +178,7 @@ export default function Dashboard() {
               <div className="flex justify-between items-center mb-2">
                 <h2 className="text-lg font-semibold text-[#F8F9FA] flex items-center">
                   <Radio className="h-5 w-5 mr-2 text-[#6E56CF]" />
-                  ACTIVE PROTOCOLS
+                  ACTIVE WORKFLOWS
                 </h2>
                 <Button 
                   variant="ghost" 
@@ -199,7 +199,7 @@ export default function Dashboard() {
               <div className="flex justify-between items-center mb-2">
                 <h2 className="text-lg font-semibold text-[#F8F9FA] flex items-center">
                   <Shield className="h-5 w-5 mr-2 text-[#6E56CF]" />
-                  SECURE DOCUMENTS
+                  TRANSACTION DOCUMENTS
                 </h2>
                 <Button 
                   variant="ghost" 
@@ -248,9 +248,9 @@ export default function Dashboard() {
       {/* Footer */}
       <div className="border-t border-[#2A2A3A] mt-6 py-2 px-4">
         <div className="flex justify-between items-center text-xs text-[#CCCED0] monospace-text">
-          <div>CLASSIFICATION: INTERNAL USE ONLY</div>
-          <div>REZGURU AI COMMAND SYSTEM v2.1.0</div>
-          <div>SESSION ID: <span className="highlight-text">2425-ALPHA-78452</span></div>
+          <div>ACCESS LEVEL: PREMIUM</div>
+          <div>REZGURU AI PLATFORM v2.1.0</div>
+          <div>USER ID: <span className="highlight-text">RG-7845-2425</span></div>
         </div>
       </div>
     </div>

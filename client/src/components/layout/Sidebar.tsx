@@ -13,12 +13,11 @@ export default function Sidebar({ isOpen, onClose, theme, onToggleTheme }: Sideb
   const [location] = useLocation();
   
   const navigation = [
-    { name: "Command Center", path: "/dashboard", icon: "fas fa-chart-pie" },
-    { name: "Targets", path: "/leads", icon: "fas fa-crosshairs" },
-    { name: "Operations", path: "/automations", icon: "fas fa-robot" },
-    { name: "Intelligence", path: "/documents", icon: "fas fa-file-alt" },
-    { name: "Reconnaissance", path: "/scraping", icon: "fas fa-satellite" },
-    { name: "AI Assistant", path: "/assistant", icon: "fas fa-brain" },
+    { name: "Dashboard", path: "/dashboard", icon: "fas fa-chart-pie" },
+    { name: "Leads", path: "/leads", icon: "fas fa-user-tag" },
+    { name: "Automations", path: "/automations", icon: "fas fa-robot" },
+    { name: "Documents", path: "/documents", icon: "fas fa-file-alt" },
+    { name: "Data Sources", path: "/scraping", icon: "fas fa-database" },
   ];
   
   const settings = [
@@ -48,7 +47,7 @@ export default function Sidebar({ isOpen, onClose, theme, onToggleTheme }: Sideb
           </div>
           <div>
             <span className="font-bold text-xl bg-gradient-to-r from-[#6E56CF] to-[#00F5D4] bg-clip-text text-transparent">RezGuru AI</span>
-            <p className="monospace-text text-[#F8F9FA]/50">TACTICAL OPERATIONS</p>
+            <p className="monospace-text text-[#F8F9FA]/50">Real Estate Platform</p>
           </div>
         </div>
         <Button 
@@ -63,8 +62,8 @@ export default function Sidebar({ isOpen, onClose, theme, onToggleTheme }: Sideb
       {/* System Status Indicator */}
       <div className="mx-4 mt-4 px-3 py-2 bg-[#20223A] rounded border border-[#2A2A3A] text-xs">
         <div className="flex items-center justify-between">
-          <span className="text-[#F8F9FA]/70 monospace-text">SYSTEM STATUS</span>
-          <span className="highlight-text monospace-text">ONLINE</span>
+          <span className="text-[#F8F9FA]/70 monospace-text">Platform Status</span>
+          <span className="highlight-text monospace-text">Active</span>
         </div>
         <div className="mt-2 h-1 bg-[#2A2A3A] rounded-full overflow-hidden">
           <div className="h-full bg-gradient-to-r from-[#6E56CF] to-[#00F5D4] w-[85%]"></div>
@@ -147,7 +146,7 @@ export default function Sidebar({ isOpen, onClose, theme, onToggleTheme }: Sideb
           </div>
           <div className="ml-3 flex-1">
             <p className="text-sm font-medium text-[#F8F9FA]">Alex Morgan</p>
-            <p className="monospace-text text-[#F8F9FA]/50">AGENT LEVEL 1</p>
+            <p className="monospace-text text-[#F8F9FA]/50">Real Estate Agent</p>
           </div>
           <Button variant="ghost" size="icon" className="h-8 w-8 rounded text-[#F8F9FA]/70 hover:text-[#00F5D4] hover:bg-[#2A2A3A]">
             <i className="fas fa-cog"></i>

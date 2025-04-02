@@ -178,7 +178,7 @@ export function ChatInterface() {
   return (
     <div className="flex flex-col h-full bg-background/50 backdrop-blur-sm rounded-lg border border-border p-4">
       <div className="flex-1 mb-4 overflow-hidden">
-        <ScrollArea className="h-[calc(100vh-260px)] pr-4">
+        <ScrollArea className="h-full pr-4">
           <div className="flex flex-col">
             {messages.map(renderMessage)}
             <div ref={messagesEndRef} />
@@ -192,7 +192,7 @@ export function ChatInterface() {
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Type your message..."
-          className="min-h-[80px] resize-none bg-background"
+          className="min-h-[60px] resize-none bg-background"
           disabled={isLoading}
         />
         <Button 

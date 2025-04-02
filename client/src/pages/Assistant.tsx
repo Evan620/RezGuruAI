@@ -4,7 +4,7 @@ export default function Assistant() {
   return (
     <div className="max-w-5xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[#F8F9FA] mb-2">TACTICAL AI ASSISTANT</h1>
+        <h1 className="text-2xl font-bold text-[#F8F9FA] mb-2">AI Assistant</h1>
         <p className="text-[#CCCED0]">Your personal real estate operations specialist, ready to assist with leads, documents, and automations.</p>
       </div>
       
