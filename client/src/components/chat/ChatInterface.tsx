@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -184,8 +185,10 @@ What's your next real estate move? Let's make it happen! 🚀`
                 : "bg-gray-800/50 border-gray-700"
           }`}
         >
-          <div className="whitespace-pre-wrap text-sm">
-            {message.content}
+          <div className="prose prose-invert prose-sm max-w-none">
+            <ReactMarkdown>
+              {message.content}
+            </ReactMarkdown>
           </div>
           
           {/* If there were tool calls, you could render them here */}
