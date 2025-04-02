@@ -1,0 +1,481 @@
+import { 
+  users, leads, workflows, documents, scrapingJobs,
+  type User, type InsertUser, 
+  type Lead, type InsertLead, 
+  type Workflow, type InsertWorkflow, 
+  type Document, type InsertDocument, 
+  type ScrapingJob, type InsertScrapingJob 
+} from "@shared/schema";
+
+// Storage interface
+export interface IStorage {
+  // User operations
+  getUser(id: number): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  
+  // Lead operations
+  getLead(id: number): Promise<Lead | undefined>;
+  getLeads(userId: number): Promise<Lead[]>;
+  getLeadsByStatus(userId: number, status: string): Promise<Lead[]>;
+  createLead(lead: InsertLead): Promise<Lead>;
+  updateLead(id: number, lead: Partial<Lead>): Promise<Lead | undefined>;
+  deleteLead(id: number): Promise<boolean>;
+  
+  // Workflow operations
+  getWorkflow(id: number): Promise<Workflow | undefined>;
+  getWorkflows(userId: number): Promise<Workflow[]>;
+  createWorkflow(workflow: InsertWorkflow): Promise<Workflow>;
+  updateWorkflow(id: number, workflow: Partial<Workflow>): Promise<Workflow | undefined>;
+  deleteWorkflow(id: number): Promise<boolean>;
+  
+  // Document operations
+  getDocument(id: number): Promise<Document | undefined>;
+  getDocuments(userId: number): Promise<Document[]>;
+  getDocumentsByLead(leadId: number): Promise<Document[]>;
+  createDocument(document: InsertDocument): Promise<Document>;
+  updateDocument(id: number, document: Partial<Document>): Promise<Document | undefined>;
+  deleteDocument(id: number): Promise<boolean>;
+  
+  // Scraping operations
+  getScrapingJob(id: number): Promise<ScrapingJob | undefined>;
+  getScrapingJobs(userId: number): Promise<ScrapingJob[]>;
+  createScrapingJob(job: InsertScrapingJob): Promise<ScrapingJob>;
+  updateScrapingJob(id: number, job: Partial<ScrapingJob>): Promise<ScrapingJob | undefined>;
+  deleteScrapingJob(id: number): Promise<boolean>;
+}
+
+// In-memory storage implementation
+export class MemStorage implements IStorage {
+  private users: Map<number, User>;
+  private leads: Map<number, Lead>;
+  private workflows: Map<number, Workflow>;
+  private documents: Map<number, Document>;
+  private scrapingJobs: Map<number, ScrapingJob>;
+  
+  private userIdCounter: number;
+  private leadIdCounter: number;
+  private workflowIdCounter: number;
+  private documentIdCounter: number;
+  private scrapingJobIdCounter: number;
+  
+  constructor() {
+    this.users = new Map();
+    this.leads = new Map();
+    this.workflows = new Map();
+    this.documents = new Map();
+    this.scrapingJobs = new Map();
+    
+    this.userIdCounter = 1;
+    this.leadIdCounter = 1;
+    this.workflowIdCounter = 1;
+    this.documentIdCounter = 1;
+    this.scrapingJobIdCounter = 1;
+    
+    // Add sample user
+    this.users.set(1, {
+      id: 1,
+      username: "demo@rezguru.ai",
+      password: "password123",
+      fullName: "Alex Morgan",
+      plan: "free"
+    });
+    
+    // Add sample data
+    this.seedData();
+  }
+  
+  // Seed with some sample data for development
+  private seedData() {
+    // Sample leads
+    const sampleLeads: InsertLead[] = [
+      { 
+        name: "John Smith", 
+        address: "123 Main St", 
+        city: "Phoenix", 
+        state: "AZ", 
+        zip: "85001", 
+        source: "tax_delinquent", 
+        motivationScore: 85, 
+        status: "new", 
+        amountOwed: "$4,200",
+        userId: 1
+      },
+      { 
+        name: "Maria Garcia", 
+        address: "456 Elm St", 
+        city: "Mesa", 
+        state: "AZ", 
+        zip: "85201", 
+        source: "probate", 
+        motivationScore: 92, 
+        status: "new", 
+        userId: 1
+      },
+      { 
+        name: "Robert Johnson", 
+        address: "789 Oak Dr", 
+        city: "Scottsdale", 
+        state: "AZ", 
+        zip: "85251", 
+        source: "fsbo", 
+        motivationScore: 62, 
+        status: "new", 
+        userId: 1
+      },
+      { 
+        name: "Sarah Williams", 
+        address: "321 Pine Rd", 
+        city: "Tempe", 
+        state: "AZ", 
+        zip: "85281", 
+        source: "tax_delinquent", 
+        motivationScore: 78, 
+        status: "new", 
+        userId: 1
+      },
+      { 
+        name: "David Brown", 
+        address: "567 Maple Ave", 
+        city: "Gilbert", 
+        state: "AZ", 
+        zip: "85296", 
+        source: "probate", 
+        motivationScore: 88, 
+        status: "contacted", 
+        userId: 1
+      },
+      { 
+        name: "Jennifer Miller", 
+        address: "890 Cedar St", 
+        city: "Chandler", 
+        state: "AZ", 
+        zip: "85224", 
+        source: "tax_delinquent", 
+        motivationScore: 94, 
+        status: "contacted", 
+        userId: 1
+      },
+      { 
+        name: "Michael Davis", 
+        address: "432 Birch Ln", 
+        city: "Glendale", 
+        state: "AZ", 
+        zip: "85301", 
+        source: "fsbo", 
+        motivationScore: 65, 
+        status: "contacted", 
+        userId: 1
+      },
+      { 
+        name: "Emily Wilson", 
+        address: "765 Spruce Ct", 
+        city: "Phoenix", 
+        state: "AZ", 
+        zip: "85001", 
+        source: "tax_delinquent", 
+        motivationScore: 95, 
+        status: "closed", 
+        userId: 1
+      },
+      { 
+        name: "Daniel Taylor", 
+        address: "234 Willow Dr", 
+        city: "Mesa", 
+        state: "AZ", 
+        zip: "85201", 
+        source: "probate", 
+        motivationScore: 90, 
+        status: "closed", 
+        userId: 1
+      }
+    ];
+    
+    sampleLeads.forEach(lead => this.createLead(lead));
+    
+    // Sample workflows
+    const sampleWorkflows: InsertWorkflow[] = [
+      {
+        name: "Tax Delinquent Follow-up",
+        description: "Automatically sends SMS and follows up with a call to tax delinquent leads.",
+        trigger: "new_lead",
+        actions: [
+          { type: "filter", config: { source: "tax_delinquent" } },
+          { type: "sms", config: { template: "Hi {{name}}, we noticed your property at {{address}} has tax issues. We can help." } },
+          { type: "delay", config: { hours: 24 } },
+          { type: "call", config: { script: "Hello, this is RezGuru calling about your property..." } }
+        ],
+        active: true,
+        userId: 1
+      },
+      {
+        name: "Probate Lead Processor",
+        description: "Scrapes probate records, scores leads, and sends personalized emails.",
+        trigger: "scheduled",
+        actions: [
+          { type: "scrape", config: { source: "probate", url: "https://countycourts.org/probate" } },
+          { type: "score", config: { model: "ai-lead-scorer" } },
+          { type: "email", config: { template: "Dear {{name}}, we understand this is a difficult time..." } }
+        ],
+        active: true,
+        userId: 1
+      },
+      {
+        name: "FSBO Document Generator",
+        description: "Creates purchase offers and contracts for FSBO leads that respond.",
+        trigger: "lead_update",
+        actions: [
+          { type: "filter", config: { source: "fsbo", status: "contacted" } },
+          { type: "calculate", config: { offer: "0.7 * market_value" } },
+          { type: "document", config: { template: "offer_letter", variables: ["name", "address", "offer_amount"] } }
+        ],
+        active: true,
+        userId: 1
+      }
+    ];
+    
+    sampleWorkflows.forEach(workflow => this.createWorkflow(workflow));
+    
+    // Sample documents
+    const sampleDocuments: InsertDocument[] = [
+      {
+        name: "Purchase Offer - 123 Main St",
+        type: "contract",
+        status: "signed",
+        leadId: 1,
+        userId: 1
+      },
+      {
+        name: "FCRA Dispute Letter",
+        type: "dispute_letter",
+        status: "draft",
+        leadId: 2,
+        userId: 1
+      },
+      {
+        name: "Cash Offer - 456 Elm St",
+        type: "offer",
+        status: "rejected",
+        leadId: 3,
+        userId: 1
+      },
+      {
+        name: "Assignment Contract",
+        type: "contract",
+        status: "sent",
+        leadId: 4,
+        userId: 1
+      }
+    ];
+    
+    sampleDocuments.forEach(document => this.createDocument(document));
+    
+    // Sample scraping jobs
+    const sampleJobs: InsertScrapingJob[] = [
+      {
+        name: "Maricopa County Tax Delinquent",
+        source: "tax_delinquent",
+        url: "https://treasurer.maricopa.gov/delinquent-taxes",
+        status: "completed",
+        userId: 1
+      },
+      {
+        name: "Pima County Probate Records",
+        source: "probate",
+        url: "https://www.sc.pima.gov/probate",
+        status: "pending",
+        userId: 1
+      },
+      {
+        name: "Phoenix FSBO Listings",
+        source: "fsbo",
+        url: "https://phoenix.craigslist.org/search/reo",
+        status: "failed",
+        userId: 1
+      }
+    ];
+    
+    sampleJobs.forEach(job => this.createScrapingJob(job));
+  }
+  
+  // User methods
+  async getUser(id: number): Promise<User | undefined> {
+    return this.users.get(id);
+  }
+  
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(
+      (user) => user.username === username,
+    );
+  }
+  
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const id = this.userIdCounter++;
+    const user: User = { ...insertUser, id };
+    this.users.set(id, user);
+    return user;
+  }
+  
+  // Lead methods
+  async getLead(id: number): Promise<Lead | undefined> {
+    return this.leads.get(id);
+  }
+  
+  async getLeads(userId: number): Promise<Lead[]> {
+    return Array.from(this.leads.values()).filter(
+      (lead) => lead.userId === userId,
+    );
+  }
+  
+  async getLeadsByStatus(userId: number, status: string): Promise<Lead[]> {
+    return Array.from(this.leads.values()).filter(
+      (lead) => lead.userId === userId && lead.status === status,
+    );
+  }
+  
+  async createLead(insertLead: InsertLead): Promise<Lead> {
+    const id = this.leadIdCounter++;
+    const now = new Date();
+    const lead: Lead = { 
+      ...insertLead, 
+      id,
+      createdAt: now,
+      updatedAt: now
+    };
+    this.leads.set(id, lead);
+    return lead;
+  }
+  
+  async updateLead(id: number, updates: Partial<Lead>): Promise<Lead | undefined> {
+    const lead = this.leads.get(id);
+    if (!lead) return undefined;
+    
+    const updatedLead = { 
+      ...lead, 
+      ...updates,
+      updatedAt: new Date()
+    };
+    this.leads.set(id, updatedLead);
+    return updatedLead;
+  }
+  
+  async deleteLead(id: number): Promise<boolean> {
+    return this.leads.delete(id);
+  }
+  
+  // Workflow methods
+  async getWorkflow(id: number): Promise<Workflow | undefined> {
+    return this.workflows.get(id);
+  }
+  
+  async getWorkflows(userId: number): Promise<Workflow[]> {
+    return Array.from(this.workflows.values()).filter(
+      (workflow) => workflow.userId === userId,
+    );
+  }
+  
+  async createWorkflow(insertWorkflow: InsertWorkflow): Promise<Workflow> {
+    const id = this.workflowIdCounter++;
+    const workflow: Workflow = { 
+      ...insertWorkflow, 
+      id,
+      lastRun: undefined,
+      createdAt: new Date()
+    };
+    this.workflows.set(id, workflow);
+    return workflow;
+  }
+  
+  async updateWorkflow(id: number, updates: Partial<Workflow>): Promise<Workflow | undefined> {
+    const workflow = this.workflows.get(id);
+    if (!workflow) return undefined;
+    
+    const updatedWorkflow = { ...workflow, ...updates };
+    this.workflows.set(id, updatedWorkflow);
+    return updatedWorkflow;
+  }
+  
+  async deleteWorkflow(id: number): Promise<boolean> {
+    return this.workflows.delete(id);
+  }
+  
+  // Document methods
+  async getDocument(id: number): Promise<Document | undefined> {
+    return this.documents.get(id);
+  }
+  
+  async getDocuments(userId: number): Promise<Document[]> {
+    return Array.from(this.documents.values()).filter(
+      (document) => document.userId === userId,
+    );
+  }
+  
+  async getDocumentsByLead(leadId: number): Promise<Document[]> {
+    return Array.from(this.documents.values()).filter(
+      (document) => document.leadId === leadId,
+    );
+  }
+  
+  async createDocument(insertDocument: InsertDocument): Promise<Document> {
+    const id = this.documentIdCounter++;
+    const document: Document = { 
+      ...insertDocument, 
+      id,
+      createdAt: new Date()
+    };
+    this.documents.set(id, document);
+    return document;
+  }
+  
+  async updateDocument(id: number, updates: Partial<Document>): Promise<Document | undefined> {
+    const document = this.documents.get(id);
+    if (!document) return undefined;
+    
+    const updatedDocument = { ...document, ...updates };
+    this.documents.set(id, updatedDocument);
+    return updatedDocument;
+  }
+  
+  async deleteDocument(id: number): Promise<boolean> {
+    return this.documents.delete(id);
+  }
+  
+  // Scraping methods
+  async getScrapingJob(id: number): Promise<ScrapingJob | undefined> {
+    return this.scrapingJobs.get(id);
+  }
+  
+  async getScrapingJobs(userId: number): Promise<ScrapingJob[]> {
+    return Array.from(this.scrapingJobs.values()).filter(
+      (job) => job.userId === userId,
+    );
+  }
+  
+  async createScrapingJob(insertJob: InsertScrapingJob): Promise<ScrapingJob> {
+    const id = this.scrapingJobIdCounter++;
+    const job: ScrapingJob = { 
+      ...insertJob, 
+      id,
+      results: [],
+      lastRun: undefined,
+      createdAt: new Date()
+    };
+    this.scrapingJobs.set(id, job);
+    return job;
+  }
+  
+  async updateScrapingJob(id: number, updates: Partial<ScrapingJob>): Promise<ScrapingJob | undefined> {
+    const job = this.scrapingJobs.get(id);
+    if (!job) return undefined;
+    
+    const updatedJob = { ...job, ...updates };
+    this.scrapingJobs.set(id, updatedJob);
+    return updatedJob;
+  }
+  
+  async deleteScrapingJob(id: number): Promise<boolean> {
+    return this.scrapingJobs.delete(id);
+  }
+}
+
+export const storage = new MemStorage();
