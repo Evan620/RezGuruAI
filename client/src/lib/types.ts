@@ -1,4 +1,5 @@
 // Shared types for frontend
+import React from 'react';
 export interface Lead {
   id: number;
   name: string;
@@ -62,6 +63,8 @@ export interface ScrapingJob {
   source: string;
   url?: string;
   status: string;
+  notes?: string;
+  schedule?: string;
   results?: any[];
   lastRun?: Date;
   createdAt: Date;
@@ -81,7 +84,7 @@ export interface Metric {
   value: number;
   change: number;
   isPositiveChange: boolean;
-  icon: string;
+  icon: React.ReactNode;
   iconBgColor: string;
   iconColor: string;
 }
