@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 
 export default function Settings() {
@@ -16,7 +17,7 @@ export default function Settings() {
   const { data: user, isLoading } = useQuery<User>({
     queryKey: ["/api/users/me"],
   });
-  
+
   const [userSettings, setUserSettings] = useState({
     fullName: "",
     email: "",
@@ -28,7 +29,7 @@ export default function Settings() {
     leadAlerts: true,
     weeklyReports: true
   });
-  
+
   // Update user settings when data loads
   if (user && userSettings.fullName === "" && userSettings.email === "") {
     setUserSettings({
@@ -37,7 +38,7 @@ export default function Settings() {
       email: user.username
     });
   }
-  
+
   const updateUserMutation = useMutation({
     mutationFn: async (data: Partial<User>) => {
       const response = await apiRequest("PATCH", "/api/users/me", data);
@@ -58,7 +59,7 @@ export default function Settings() {
       });
     }
   });
-  
+
   const updatePasswordMutation = useMutation({
     mutationFn: async (data: { currentPassword: string, newPassword: string }) => {
       const response = await apiRequest("POST", "/api/auth/change-password", data);
@@ -84,17 +85,17 @@ export default function Settings() {
       });
     }
   });
-  
+
   const handleUserInfoSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     updateUserMutation.mutate({
       fullName: userSettings.fullName
     });
   };
-  
+
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (userSettings.newPassword !== userSettings.confirmPassword) {
       toast({
         title: "Passwords don't match",
@@ -103,7 +104,7 @@ export default function Settings() {
       });
       return;
     }
-    
+
     if (userSettings.newPassword.length < 8) {
       toast({
         title: "Password too short",
@@ -112,13 +113,13 @@ export default function Settings() {
       });
       return;
     }
-    
+
     updatePasswordMutation.mutate({
       currentPassword: userSettings.currentPassword,
       newPassword: userSettings.newPassword
     });
   };
-  
+
   const handleNotificationSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // In a real app, this would update notification settings
@@ -127,23 +128,23 @@ export default function Settings() {
       description: "Your notification preferences have been saved.",
     });
   };
-  
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setUserSettings(prev => ({ ...prev, [name]: value }));
   };
-  
+
   const handleSwitchChange = (name: string, checked: boolean) => {
     setUserSettings(prev => ({ ...prev, [name]: checked }));
   };
-  
+
   return (
     <div>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
         <p className="mt-1 text-gray-500">Manage your account preferences and configuration</p>
       </div>
-      
+
       <Tabs defaultValue="account" className="w-full">
         <TabsList className="mb-6">
           <TabsTrigger value="account">Account</TabsTrigger>
@@ -151,7 +152,7 @@ export default function Settings() {
           <TabsTrigger value="billing">Billing</TabsTrigger>
           <TabsTrigger value="api">API</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="account">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Personal Information */}
@@ -173,7 +174,7 @@ export default function Settings() {
                         placeholder="Your full name"
                       />
                     </div>
-                    
+
                     <div className="grid gap-2">
                       <Label htmlFor="email">Email Address</Label>
                       <Input
@@ -187,7 +188,7 @@ export default function Settings() {
                       <p className="text-xs text-gray-500">Email address cannot be changed</p>
                     </div>
                   </div>
-                  
+
                   <div className="mt-6">
                     <Button 
                       type="submit" 
@@ -207,7 +208,7 @@ export default function Settings() {
                 </form>
               </CardContent>
             </Card>
-            
+
             {/* Password Change */}
             <Card>
               <CardHeader>
@@ -228,7 +229,7 @@ export default function Settings() {
                         placeholder="Your current password"
                       />
                     </div>
-                    
+
                     <div className="grid gap-2">
                       <Label htmlFor="newPassword">New Password</Label>
                       <Input
@@ -240,7 +241,7 @@ export default function Settings() {
                         placeholder="Your new password"
                       />
                     </div>
-                    
+
                     <div className="grid gap-2">
                       <Label htmlFor="confirmPassword">Confirm New Password</Label>
                       <Input
@@ -253,7 +254,7 @@ export default function Settings() {
                       />
                     </div>
                   </div>
-                  
+
                   <div className="mt-6">
                     <Button 
                       type="submit" 
@@ -278,7 +279,7 @@ export default function Settings() {
                 </form>
               </CardContent>
             </Card>
-            
+
             {/* Account Danger Zone */}
             <Card className="md:col-span-2 border-red-200">
               <CardHeader>
@@ -299,7 +300,7 @@ export default function Settings() {
             </Card>
           </div>
         </TabsContent>
-        
+
         <TabsContent value="notifications">
           <Card>
             <CardHeader>
@@ -323,9 +324,9 @@ export default function Settings() {
                           onCheckedChange={(checked) => handleSwitchChange("emailNotifications", checked)}
                         />
                       </div>
-                      
+
                       <Separator />
-                      
+
                       <div className="flex items-center justify-between">
                         <div className="space-y-0.5">
                           <Label htmlFor="smsNotifications">SMS Notifications</Label>
@@ -339,9 +340,9 @@ export default function Settings() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <Separator />
-                  
+
                   <div>
                     <h3 className="text-lg font-medium mb-3">Notification Types</h3>
                     <div className="space-y-4">
@@ -356,9 +357,9 @@ export default function Settings() {
                           onCheckedChange={(checked) => handleSwitchChange("leadAlerts", checked)}
                         />
                       </div>
-                      
+
                       <Separator />
-                      
+
                       <div className="flex items-center justify-between">
                         <div className="space-y-0.5">
                           <Label htmlFor="weeklyReports">Weekly Reports</Label>
@@ -373,7 +374,7 @@ export default function Settings() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="mt-6">
                   <Button 
                     type="submit" 
@@ -386,7 +387,7 @@ export default function Settings() {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="billing">
           <Card>
             <CardHeader>
@@ -405,7 +406,7 @@ export default function Settings() {
                     </div>
                     <Badge className="bg-gray-200 text-gray-800">Free</Badge>
                   </div>
-                  
+
                   <div className="mt-4 text-sm text-gray-600">
                     <div className="flex items-center mb-1">
                       <i className="fas fa-check text-green-500 mr-2"></i>
@@ -426,9 +427,9 @@ export default function Settings() {
                   </div>
                 </div>
               </div>
-              
+
               <h3 className="text-lg font-medium mb-4">Available Plans</h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div className="border border-primary-200 rounded-lg p-4 bg-primary-50">
                   <div className="flex justify-between items-start">
@@ -458,7 +459,7 @@ export default function Settings() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="border border-gray-200 rounded-lg p-4">
                   <div className="flex justify-between items-start">
                     <div>
@@ -488,14 +489,14 @@ export default function Settings() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="text-sm text-gray-500">
                 <p>Need a custom solution? <a href="#" className="text-primary-600 hover:text-primary-800">Contact our sales team</a> for enterprise pricing.</p>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="api">
           <Card>
             <CardHeader>
@@ -510,7 +511,7 @@ export default function Settings() {
                     <p>API access is a Pro feature. Upgrade your plan to generate API keys and access the RezGuru API.</p>
                   </div>
                 </div>
-                
+
                 <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
                   <h3 className="font-medium text-gray-900 mb-3">API Documentation</h3>
                   <p className="text-sm text-gray-600 mb-4">
@@ -524,9 +525,9 @@ export default function Settings() {
                   </Button>
                 </div>
               </div>
-              
+
               <h3 className="text-lg font-medium mb-4">External Integrations</h3>
-              
+
               <div className="space-y-4">
                 <div className="border border-gray-200 rounded-lg p-4">
                   <div className="flex items-center justify-between">
@@ -542,7 +543,7 @@ export default function Settings() {
                     <Button variant="outline" disabled>Connect</Button>
                   </div>
                 </div>
-                
+
                 <div className="border border-gray-200 rounded-lg p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
@@ -557,7 +558,7 @@ export default function Settings() {
                     <Button variant="outline" disabled>Connect</Button>
                   </div>
                 </div>
-                
+
                 <div className="border border-gray-200 rounded-lg p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
