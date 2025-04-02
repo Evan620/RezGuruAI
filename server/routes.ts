@@ -8,6 +8,7 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 import { scoreLeadWithAI, updateLeadMotivationScore } from "./services/leadScoringService";
+import { generateDocument, getDocumentTemplates, getDocumentTemplate, DocumentGenerationParams } from "./services/documentGenerationService";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const apiRouter = express.Router();
@@ -434,6 +435,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error analyzing lead:", error);
       res.status(500).json({ 
         message: "Error analyzing lead", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+  
+  // Document template routes
+  apiRouter.get("/document-templates", (req, res) => {
+    try {
+      const templates = getDocumentTemplates();
+      res.json(templates);
+    } catch (error) {
+      console.error("Error getting document templates:", error);
+      res.status(500).json({ 
+        message: "Error getting document templates", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+  
+  apiRouter.get("/document-templates/:id", (req, res) => {
+    try {
+      const templateId = req.params.id;
+      const template = getDocumentTemplate(templateId);
+      
+      if (!template) {
+        return res.status(404).json({ message: "Document template not found" });
+      }
+      
+      res.json(template);
+    } catch (error) {
+      console.error("Error getting document template:", error);
+      res.status(500).json({ 
+        message: "Error getting document template", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+  
+  // Document generation endpoint
+  apiRouter.post("/documents/generate", async (req, res) => {
+    try {
+      const { templateId, leadId, customFields } = req.body;
+      
+      if (!templateId) {
+        return res.status(400).json({ message: "Template ID is required" });
+      }
+      
+      const template = getDocumentTemplate(templateId);
+      if (!template) {
+        return res.status(404).json({ message: "Document template not found" });
+      }
+      
+      // For demo purposes, use user 1
+      const userId = 1;
+      
+      const params: DocumentGenerationParams = {
+        templateId,
+        leadId: leadId ? parseInt(leadId) : undefined,
+        userId,
+        customFields
+      };
+      
+      const document = await generateDocument(params);
+      
+      res.status(201).json(document);
+    } catch (error) {
+      console.error("Error generating document:", error);
+      res.status(500).json({ 
+        message: "Error generating document", 
         error: error instanceof Error ? error.message : String(error)
       });
     }

@@ -85,3 +85,19 @@ export interface Metric {
   iconBgColor: string;
   iconColor: string;
 }
+
+export interface DocumentTemplate {
+  id: string;
+  name: string;
+  description: string;
+  type: string;
+  template?: string;
+  iconBgColor?: string;
+  iconColor?: string;
+}
+
+export interface DocumentGenerationParams {
+  templateId: string;
+  leadId?: number;
+  customFields?: Record<string, string>;
+}
