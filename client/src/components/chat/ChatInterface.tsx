@@ -25,7 +25,36 @@ export function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: "assistant",
-      content: "Hello, I'm Guru, your real estate AI assistant. How can I help you today?"
+      content: `👋 **Welcome to RezGuru AI!**
+
+I'm your real estate automation powerhouse! Here's what I can do for you:
+
+🎯 **Lead Management**
+- Find and score property owner leads
+- Create and update lead profiles
+- Track lead engagement
+
+📄 **Document Generation**
+- Create professional contracts
+- Generate custom offers
+- Manage templates
+
+🔍 **Web Scraping**
+- Extract leads from tax records
+- Find FSBOs and expired listings
+- Monitor market changes
+
+⚡ **Automation Workflows**
+- Set up automated follow-ups
+- Create lead scoring systems
+- Schedule messaging campaigns
+
+🧠 **AI-Powered Insights**
+- Get lead recommendations
+- Identify promising areas
+- Optimize your strategy
+
+What's your next real estate move? Let's make it happen! 🚀`
     }
   ]);
   
