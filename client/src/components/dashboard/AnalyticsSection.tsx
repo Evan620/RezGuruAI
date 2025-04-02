@@ -155,7 +155,7 @@ export default function AnalyticsSection() {
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
-                          data={leadSourcesData}
+                          data={Array.isArray(leadSourcesData?.data) ? leadSourcesData.data : []}
                           cx="50%"
                           cy="50%"
                           labelLine={false}
@@ -164,9 +164,9 @@ export default function AnalyticsSection() {
                           fill="#8884d8"
                           dataKey="value"
                         >
-                          {(leadSourcesData || []).map((entry: any, index: number) => (
+                          {Array.isArray(leadSourcesData?.data) ? leadSourcesData.data.map((entry: any, index: number) => (
                             <Cell key={`cell-${index}`} fill={entry.color || COLORS[index % COLORS.length]} />
-                          ))}
+                          )) : null}
                         </Pie>
                         <Tooltip formatter={(value) => [`${value} leads`, 'Count']} />
                         <Legend />
