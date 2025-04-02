@@ -4,34 +4,44 @@
 
 @layer base {
   :root {
-    --primary: 250 65% 57%;
-    --primary-foreground: 0 0% 98%;
+    /* Main colors */
+    --color-primary: 250 65% 57%; /* #6E56CF - violet */
+    --color-accent: 170 100% 48%; /* #00F5D4 - teal */
+    --color-bg-dark: 230 30% 15%; /* #1A1A2E - dark navy */
+    --color-bg-card: 230 30% 18%; /* #20223A - slightly lighter navy */
+    --color-border: 230 15% 25%; /* #2A2A3A - dark border */
+    --color-text: 210 20% 98%; /* #F8F9FA - light text */
+    --color-text-muted: 210 20% 80%; /* #CCCED0 - muted text */
     
-    --secondary: 230 30% 15%;
-    --secondary-foreground: 210 20% 98%;
+    /* System colors derived from main colors */
+    --primary: var(--color-primary);
+    --primary-foreground: var(--color-text);
     
-    --accent: 170 100% 48%;
-    --accent-foreground: 0 0% 9%;
+    --secondary: var(--color-bg-card);
+    --secondary-foreground: var(--color-text);
     
-    --background: 230 30% 15%;
-    --foreground: 210 20% 98%;
+    --accent: var(--color-accent);
+    --accent-foreground: var(--color-bg-dark);
     
-    --card: 224 71% 4%;
-    --card-foreground: 210 20% 98%;
+    --background: var(--color-bg-dark);
+    --foreground: var(--color-text);
     
-    --popover: 224 71% 4%;
-    --popover-foreground: 210 20% 98%;
+    --card: var(--color-bg-card);
+    --card-foreground: var(--color-text);
     
-    --muted: 215 27% 16%;
-    --muted-foreground: 217.9 10.6% 64.9%;
+    --popover: var(--color-bg-card);
+    --popover-foreground: var(--color-text);
     
-    --border: 230 15% 20%;
-    --input: 230 15% 20%;
+    --muted: var(--color-bg-card);
+    --muted-foreground: var(--color-text-muted);
+    
+    --border: var(--color-border);
+    --input: var(--color-border);
     
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 20% 98%;
+    --destructive-foreground: var(--color-text);
     
-    --ring: 250 65% 57%;
+    --ring: var(--color-primary);
   }
 
   * {
@@ -39,21 +49,61 @@
   }
 
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply font-sans antialiased bg-[#1A1A2E] text-[#F8F9FA];
   }
 }
 
 @layer components {
+  /* Card styles */
+  .card-base {
+    @apply bg-[#20223A] border border-[#2A2A3A] rounded-md shadow-md overflow-hidden;
+  }
+  
   .card-hover {
     @apply transition-transform duration-200 hover:scale-[1.02];
   }
   
+  .card-active {
+    @apply border-l-2 border-l-[#00F5D4];
+  }
+  
+  /* Text styles */
   .highlight-text {
     @apply text-[#00F5D4];
   }
   
+  .primary-text {
+    @apply text-[#6E56CF];
+  }
+  
+  .monospace-text {
+    @apply font-mono text-xs;
+  }
+  
+  /* Component styles */
   .sidebar-card {
-    @apply bg-[#1A1A2E] rounded-lg p-4 border-l-4 border-[#6E56CF];
+    @apply bg-[#20223A] rounded-md p-4 border border-[#2A2A3A];
+  }
+  
+  .tactical-badge {
+    @apply bg-[#20223A] text-[#F8F9FA] px-2 py-1 rounded text-xs border border-[#2A2A3A] font-mono;
+  }
+  
+  .status-badge {
+    @apply text-xs px-2 py-0.5 rounded font-mono;
+  }
+  
+  .status-badge-active {
+    @apply status-badge bg-[#00F5D4]/20 text-[#00F5D4] border border-[#00F5D4]/30;
+  }
+  
+  .status-badge-inactive {
+    @apply status-badge bg-gray-800 text-gray-400 border border-gray-700;
+  }
+  
+  /* Stat/Metrics styles */
+  .stat-card {
+    @apply card-base p-4;
   }
   
   .stat-value {
@@ -61,6 +111,23 @@
   }
   
   .stat-label {
-    @apply text-sm text-muted-foreground;
+    @apply text-sm text-[#CCCED0] font-mono uppercase;
+  }
+  
+  .stat-icon-container {
+    @apply bg-[#20223A] border border-[#2A2A3A] rounded-md p-2 flex items-center justify-center;
+  }
+  
+  /* Button styles */
+  .tactical-button {
+    @apply bg-[#6E56CF] hover:bg-[#6E56CF]/90 text-[#F8F9FA] rounded-md px-4 py-2 font-medium transition-colors;
+  }
+  
+  .tactical-button-secondary {
+    @apply bg-[#20223A] hover:bg-[#2A2A3A] text-[#F8F9FA] border border-[#2A2A3A] rounded-md px-4 py-2 font-medium transition-colors;
+  }
+  
+  .tactical-button-accent {
+    @apply bg-[#00F5D4]/20 hover:bg-[#00F5D4]/30 text-[#00F5D4] border border-[#00F5D4]/30 rounded-md px-4 py-2 font-medium transition-colors;
   }
 }

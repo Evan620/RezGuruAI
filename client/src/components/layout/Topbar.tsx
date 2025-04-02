@@ -26,10 +26,10 @@ export default function Topbar({ onOpenSidebar, theme, onToggleTheme }: TopbarPr
         
         {/* Command Center Header */}
         <div className="hidden lg:flex items-center space-x-3 text-sm">
-          <span className="text-[#00F5D4] font-mono font-bold">[GURU-COMMAND]</span>
+          <span className="highlight-text monospace-text font-bold">[GURU-COMMAND]</span>
           <i className="fas fa-chevron-right text-xs mx-1 text-muted-foreground"></i>
-          <span className="bg-[#2A2A3A] px-3 py-1 rounded text-[#F8F9FA] font-mono">TACTICAL_DASHBOARD</span>
-          <div className="ml-3 px-2 py-[2px] text-xs border border-[#00F5D4] text-[#00F5D4] rounded font-mono">
+          <span className="tactical-badge">TACTICAL_DASHBOARD</span>
+          <div className="status-badge-active ml-2">
             OPERATIONAL
           </div>
         </div>
@@ -44,7 +44,7 @@ export default function Topbar({ onOpenSidebar, theme, onToggleTheme }: TopbarPr
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-3 bg-[#2A2A3A] border-[#3A3A4A] h-9 rounded text-[#F8F9FA] placeholder:text-gray-500 card-hover focus:border-[#6E56CF] focus:ring-1 focus:ring-[#6E56CF]"
+              className="pl-10 pr-3 bg-[#20223A] border-[#2A2A3A] h-9 rounded text-[#F8F9FA] placeholder:text-[#CCCED0]/70 card-hover focus:border-[#6E56CF] focus:ring-1 focus:ring-[#6E56CF]"
               placeholder="Search targets, assets, operations..."
             />
           </div>
@@ -53,9 +53,9 @@ export default function Topbar({ onOpenSidebar, theme, onToggleTheme }: TopbarPr
         {/* Right Navigation */}
         <div className="flex items-center">
           <div className="hidden sm:flex mr-4 text-sm">
-            <div className="flex items-center bg-[#2A2A3A] px-2 py-1 rounded-md border border-[#3A3A4A]">
+            <div className="flex items-center bg-[#20223A] px-2 py-1 rounded border border-[#2A2A3A]">
               <div className="animate-pulse h-2 w-2 rounded-full bg-green-500 mr-2"></div>
-              <span className="text-xs text-[#F8F9FA]/80 font-mono">SYSTEM ONLINE</span>
+              <span className="text-xs text-[#F8F9FA]/80 monospace-text">SYSTEM ONLINE</span>
             </div>
           </div>
           
@@ -82,7 +82,7 @@ export default function Topbar({ onOpenSidebar, theme, onToggleTheme }: TopbarPr
           <div className="ml-3 relative">
             <Button 
               variant="ghost" 
-              className="p-0 h-9 w-9 bg-[#6E56CF]/30 text-[#6E56CF] hover:bg-[#6E56CF]/50 rounded"
+              className="p-0 h-9 w-9 bg-[#6E56CF]/20 text-[#6E56CF] hover:bg-[#6E56CF]/30 border border-[#6E56CF]/30 rounded"
             >
               <i className="fas fa-user text-sm"></i>
             </Button>
