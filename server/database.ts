@@ -57,6 +57,7 @@ async function createSchema() {
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
         username VARCHAR(100) NOT NULL,
+        password VARCHAR(200) NOT NULL,
         full_name VARCHAR(200),
         plan VARCHAR(50) NOT NULL DEFAULT 'free',
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -136,8 +137,8 @@ async function createSchema() {
     
     // Add a sample user
     await client.query(`
-      INSERT INTO users (username, full_name, plan)
-      VALUES ('demo', 'Alex Morgan', 'free')
+      INSERT INTO users (username, password, full_name, plan)
+      VALUES ('demo', 'demo123', 'Alex Morgan', 'free')
     `);
     
     // Add some sample leads

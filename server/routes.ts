@@ -3,9 +3,11 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { 
   enhancedInsertLeadSchema, enhancedInsertWorkflowSchema, 
-  enhancedInsertDocumentSchema, enhancedInsertScrapingJobSchema
+  enhancedInsertDocumentSchema, enhancedInsertScrapingJobSchema,
+  Lead
 } from "@shared/schema";
 import { z } from "zod";
+import { scoreLeadWithAI, updateLeadMotivationScore } from "./services/leadScoringService";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const apiRouter = express.Router();
@@ -120,6 +122,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     
     res.status(204).end();
+  });
+  
+  // Score a lead using AI
+  apiRouter.patch("/leads/:id/score", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const lead = await storage.getLead(id);
+      
+      if (!lead) {
+        return res.status(404).json({ message: "Lead not found" });
+      }
+      
+      // Score the lead using AI
+      const scoringResult = await scoreLeadWithAI(lead);
+      
+      // Update the lead with the new motivation score
+      const updatedLead = await updateLeadMotivationScore(lead, scoringResult);
+      
+      // Save the updated lead to storage
+      const savedLead = await storage.updateLead(id, {
+        motivationScore: updatedLead.motivationScore,
+        notes: updatedLead.notes
+      });
+      
+      // Return the scoring result and updated lead
+      res.json({
+        lead: savedLead,
+        scoring: scoringResult
+      });
+    } catch (error) {
+      console.error("Error scoring lead:", error);
+      res.status(500).json({ 
+        message: "Error scoring lead", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
   });
   
   // Workflow routes
@@ -330,17 +368,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // AI lead scoring endpoint
   apiRouter.post("/ai/score-lead", async (req, res) => {
-    const { leadData } = req.body;
-    
-    if (!leadData) {
-      return res.status(400).json({ message: "Lead data is required" });
+    try {
+      const { leadId } = req.body;
+      
+      if (!leadId) {
+        return res.status(400).json({ message: "Lead ID is required" });
+      }
+      
+      // Get the lead from storage
+      const lead = await storage.getLead(leadId);
+      
+      if (!lead) {
+        return res.status(404).json({ message: "Lead not found" });
+      }
+      
+      // Score the lead using AI
+      const scoringResult = await scoreLeadWithAI(lead);
+      
+      // Update the lead with the new motivation score
+      const updatedLead = await updateLeadMotivationScore(lead, scoringResult);
+      
+      // Save the updated lead to storage
+      const savedLead = await storage.updateLead(lead.id, {
+        motivationScore: updatedLead.motivationScore,
+        notes: updatedLead.notes
+      });
+      
+      // Return the scoring result and updated lead
+      res.json({
+        lead: savedLead,
+        scoring: scoringResult
+      });
+    } catch (error) {
+      console.error("Error scoring lead:", error);
+      res.status(500).json({ 
+        message: "Error scoring lead", 
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
-    
-    // In a real implementation, this would call an AI model
-    // For demo purposes, we'll return a random score
-    const score = Math.floor(Math.random() * (100 - 50 + 1)) + 50;
-    
-    res.json({ score });
+  });
+  
+  // New endpoint to get AI analysis for a specific lead
+  apiRouter.get("/ai/lead-analysis/:id", async (req, res) => {
+    try {
+      const leadId = parseInt(req.params.id);
+      const lead = await storage.getLead(leadId);
+      
+      if (!lead) {
+        return res.status(404).json({ message: "Lead not found" });
+      }
+      
+      const scoringResult = await scoreLeadWithAI(lead);
+      
+      res.json({
+        lead: {
+          id: lead.id,
+          name: lead.name,
+          source: lead.source,
+          status: lead.status,
+          motivationScore: lead.motivationScore
+        },
+        analysis: scoringResult
+      });
+    } catch (error) {
+      console.error("Error analyzing lead:", error);
+      res.status(500).json({ 
+        message: "Error analyzing lead", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
   });
   
   app.use("/api", apiRouter);

@@ -73,12 +73,15 @@ export class MemStorage implements IStorage {
     this.scrapingJobIdCounter = 1;
     
     // Add sample user
+    const now = new Date();
     this.users.set(1, {
       id: 1,
       username: "demo@rezguru.ai",
       password: "password123",
       fullName: "Alex Morgan",
-      plan: "free"
+      plan: "free",
+      createdAt: now,
+      updatedAt: now
     });
     
     // Add sample data
@@ -311,7 +314,16 @@ export class MemStorage implements IStorage {
   
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.userIdCounter++;
-    const user: User = { ...insertUser, id };
+    const now = new Date();
+    const user: User = { 
+      id,
+      username: insertUser.username,
+      password: insertUser.password,
+      fullName: insertUser.fullName || null,
+      plan: insertUser.plan || null,
+      createdAt: now,
+      updatedAt: now
+    };
     this.users.set(id, user);
     return user;
   }
@@ -337,8 +349,20 @@ export class MemStorage implements IStorage {
     const id = this.leadIdCounter++;
     const now = new Date();
     const lead: Lead = { 
-      ...insertLead, 
       id,
+      name: insertLead.name,
+      address: insertLead.address || null,
+      city: insertLead.city || null,
+      state: insertLead.state || null,
+      zip: insertLead.zip || null,
+      phone: insertLead.phone || null,
+      email: insertLead.email || null,
+      source: insertLead.source,
+      motivationScore: insertLead.motivationScore || null,
+      status: insertLead.status || null,
+      notes: insertLead.notes || null,
+      amountOwed: insertLead.amountOwed || null,
+      userId: insertLead.userId,
       createdAt: now,
       updatedAt: now
     };
@@ -377,9 +401,14 @@ export class MemStorage implements IStorage {
   async createWorkflow(insertWorkflow: InsertWorkflow): Promise<Workflow> {
     const id = this.workflowIdCounter++;
     const workflow: Workflow = { 
-      ...insertWorkflow, 
       id,
-      lastRun: undefined,
+      name: insertWorkflow.name,
+      description: insertWorkflow.description || null,
+      trigger: insertWorkflow.trigger,
+      actions: insertWorkflow.actions,
+      active: insertWorkflow.active || null,
+      userId: insertWorkflow.userId || null,
+      lastRun: null,
       createdAt: new Date()
     };
     this.workflows.set(id, workflow);
@@ -419,8 +448,14 @@ export class MemStorage implements IStorage {
   async createDocument(insertDocument: InsertDocument): Promise<Document> {
     const id = this.documentIdCounter++;
     const document: Document = { 
-      ...insertDocument, 
       id,
+      name: insertDocument.name,
+      type: insertDocument.type,
+      content: insertDocument.content || null,
+      url: insertDocument.url || null,
+      status: insertDocument.status || null,
+      leadId: insertDocument.leadId || null,
+      userId: insertDocument.userId || null,
       createdAt: new Date()
     };
     this.documents.set(id, document);
@@ -454,10 +489,14 @@ export class MemStorage implements IStorage {
   async createScrapingJob(insertJob: InsertScrapingJob): Promise<ScrapingJob> {
     const id = this.scrapingJobIdCounter++;
     const job: ScrapingJob = { 
-      ...insertJob, 
       id,
+      name: insertJob.name,
+      source: insertJob.source,
+      url: insertJob.url || null,
+      status: insertJob.status || null,
+      userId: insertJob.userId || null,
       results: [],
-      lastRun: undefined,
+      lastRun: null,
       createdAt: new Date()
     };
     this.scrapingJobs.set(id, job);
