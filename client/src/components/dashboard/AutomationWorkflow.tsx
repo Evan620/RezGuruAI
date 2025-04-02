@@ -14,65 +14,70 @@ export default function AutomationWorkflow() {
   const templates: WorkflowTemplateType[] = [
     {
       id: "lead-qualifier",
-      name: "Lead Qualifier",
-      description: "Score and route new leads",
+      name: "Target Qualifier",
+      description: "Score and route new targets",
       icon: "fas fa-filter",
-      iconBgColor: "bg-primary-100",
-      iconColor: "text-primary-600"
+      iconBgColor: "bg-[#6E56CF]/20",
+      iconColor: "text-[#6E56CF]"
     },
     {
       id: "outreach-sequence",
       name: "Outreach Sequence",
       description: "SMS, email, call sequence",
       icon: "fas fa-paper-plane",
-      iconBgColor: "bg-secondary-100",
-      iconColor: "text-secondary-600"
+      iconBgColor: "bg-[#FF6B6B]/20",
+      iconColor: "text-[#FF6B6B]"
     },
     {
       id: "contract-generator",
       name: "Contract Generator",
       description: "Create purchase agreements",
       icon: "fas fa-file-signature",
-      iconBgColor: "bg-accent-100",
-      iconColor: "text-accent-600"
+      iconBgColor: "bg-[#00F5D4]/20",
+      iconColor: "text-[#00F5D4]"
     },
     {
       id: "scraper-workflow",
-      name: "Scraper Workflow",
+      name: "Scraper Protocol",
       description: "Extract data from websites",
       icon: "fas fa-spider",
-      iconBgColor: "bg-green-100",
-      iconColor: "text-green-600"
+      iconBgColor: "bg-[#FFD166]/20",
+      iconColor: "text-[#FFD166]"
     },
     {
       id: "custom-workflow",
-      name: "Custom Workflow",
+      name: "Custom Protocol",
       description: "Create from scratch",
       icon: "fas fa-wrench",
-      iconBgColor: "bg-red-100",
-      iconColor: "text-red-600"
+      iconBgColor: "bg-[#06D6A0]/20",
+      iconColor: "text-[#06D6A0]"
     }
   ];
   
   return (
     <div className="mb-8">
       <div className="mb-5 flex justify-between items-center">
-        <h2 className="text-xl font-bold text-gray-900">Automation Workflows</h2>
-        <Button className="bg-primary-600 hover:bg-primary-700">
-          <i className="fas fa-plus mr-2"></i> Create Workflow
+        <h3 className="text-lg font-semibold text-[#F8F9FA]">ACTIVE PROTOCOLS</h3>
+        <Button className="bg-[#6E56CF] hover:bg-[#5D46BD] text-white">
+          <span className="mr-2">+</span> Create Protocol
         </Button>
       </div>
 
-      <div className="bg-white p-5 rounded-lg shadow">
+      <div className="bg-[#20223A] p-5 rounded border border-[#2A2A3A]">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Active Workflows */}
           <div className="col-span-2">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Active Workflows</h3>
+            <h3 className="text-base font-medium text-[#F8F9FA] mb-4 flex items-center">
+              <span className="h-2 w-2 rounded-full bg-[#00F5D4] mr-2"></span>
+              OPERATIONAL PROTOCOLS
+            </h3>
             
             {isLoading ? (
-              <div className="p-4 text-center text-gray-500">Loading workflows...</div>
+              <div className="p-4 text-center text-[#CCCED0]">
+                <div className="animate-pulse h-4 w-24 bg-[#2A2A3A] rounded mx-auto"></div>
+              </div>
             ) : workflows?.length === 0 ? (
-              <div className="p-4 text-center text-gray-500">No active workflows found</div>
+              <div className="p-4 text-center text-[#CCCED0] monospace-text">No active protocols found</div>
             ) : (
               workflows?.map(workflow => (
                 <WorkflowCard key={workflow.id} workflow={workflow} />
@@ -82,7 +87,10 @@ export default function AutomationWorkflow() {
 
           {/* Workflow Templates */}
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Templates</h3>
+            <h3 className="text-base font-medium text-[#F8F9FA] mb-4 flex items-center">
+              <span className="h-2 w-2 rounded-full bg-[#6E56CF] mr-2"></span>
+              PROTOCOL TEMPLATES
+            </h3>
             <div className="space-y-3">
               {templates.map(template => (
                 <WorkflowTemplateComponent 

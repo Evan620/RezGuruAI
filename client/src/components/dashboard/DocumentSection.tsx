@@ -13,13 +13,13 @@ export default function DocumentSection() {
   return (
     <div>
       <div className="mb-5 flex justify-between items-center">
-        <h2 className="text-xl font-bold text-gray-900">Documents</h2>
+        <h3 className="text-lg font-semibold text-[#F8F9FA]">DOCUMENT ARCHIVE</h3>
         <div className="flex space-x-2">
-          <Button variant="outline" className="border border-gray-300 bg-white text-gray-700">
-            <i className="fas fa-upload mr-2"></i> Upload
+          <Button variant="outline" className="border border-[#2A2A3A] bg-[#20223A] text-[#F8F9FA] hover:bg-[#2A2A3A] hover:text-[#00F5D4]">
+            <span className="mr-2">↑</span> Upload
           </Button>
-          <Button className="bg-primary-600 hover:bg-primary-700">
-            <i className="fas fa-plus mr-2"></i> Create Document
+          <Button className="bg-[#6E56CF] hover:bg-[#5D46BD] text-white">
+            <span className="mr-2">+</span> Create Document
           </Button>
         </div>
       </div>
