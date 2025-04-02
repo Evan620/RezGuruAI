@@ -18,6 +18,7 @@ export default function Sidebar({ isOpen, onClose, theme, onToggleTheme }: Sideb
     { name: "Operations", path: "/automations", icon: "fas fa-robot" },
     { name: "Intelligence", path: "/documents", icon: "fas fa-file-alt" },
     { name: "Reconnaissance", path: "/scraping", icon: "fas fa-satellite" },
+    { name: "AI Assistant", path: "/assistant", icon: "fas fa-brain" },
   ];
   
   const settings = [

@@ -10,6 +10,7 @@ import Documents from "@/pages/Documents";
 import Scraping from "@/pages/Scraping";
 import Settings from "@/pages/Settings";
 import Help from "@/pages/Help";
+import Assistant from "@/pages/Assistant";
 import Layout from "./components/layout/Layout";
 
 function Router() {
@@ -22,6 +23,7 @@ function Router() {
         <Route path="/automations" component={Automations} />
         <Route path="/documents" component={Documents} />
         <Route path="/scraping" component={Scraping} />
+        <Route path="/assistant" component={Assistant} />
         <Route path="/settings" component={Settings} />
         <Route path="/help" component={Help} />
         {/* Fallback to 404 */}
