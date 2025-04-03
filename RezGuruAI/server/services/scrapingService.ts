@@ -459,7 +459,8 @@ export async function createLeadFromScrapingResult(
   }
   
   // Find the result by ID
-  const result = job.results.find((r: any) => r.id === resultId);
+  const resultsArray = Array.isArray(job.results) ? job.results : [];
+  const result = resultsArray.find((r: any) => r.id === resultId);
   if (!result) {
     throw new Error(`Result with ID ${resultId} not found in job ${jobId}`);
   }

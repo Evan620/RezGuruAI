@@ -20,13 +20,9 @@ export default function WorkflowTemplateComponent({ template }: WorkflowTemplate
       const workflowData = {
         name: `${template.name} - ${new Date().toLocaleDateString()}`,
         description: template.description,
-        type: template.id,
+        trigger: template.id,
         active: true,
-        config: {
-          actionSequence: template.id === "custom-workflow" ? [] : getDefaultActions(template.id),
-          conditions: [],
-          triggers: []
-        }
+        actions: getDefaultActions(template.id)
       };
       
       const response = await apiRequest("POST", "/api/workflows", workflowData);

@@ -16,7 +16,8 @@ export default function ScrapingForm() {
     name: "",
     source: "tax_delinquent",
     url: "",
-    status: "pending"
+    status: "pending",
+    notes: ""
   });
   
   const createScrapingJobMutation = useMutation({
@@ -33,7 +34,8 @@ export default function ScrapingForm() {
         name: "",
         source: "tax_delinquent",
         url: "",
-        status: "pending"
+        status: "pending",
+        notes: ""
       });
     },
     onError: (error) => {
@@ -74,7 +76,7 @@ export default function ScrapingForm() {
                 id="name"
                 name="name"
                 placeholder="e.g., Maricopa County Tax Delinquents"
-                value={formData.name}
+                value={formData.name || ''}
                 onChange={handleChange}
                 required
               />
@@ -83,7 +85,7 @@ export default function ScrapingForm() {
             <div className="grid gap-2">
               <Label htmlFor="source">Source Type</Label>
               <Select
-                value={formData.source}
+                value={formData.source || 'tax_delinquent'}
                 onValueChange={handleSourceChange}
               >
                 <SelectTrigger>
@@ -103,7 +105,7 @@ export default function ScrapingForm() {
                 id="url"
                 name="url"
                 placeholder="e.g., https://treasurer.maricopa.gov/delinquent-taxes"
-                value={formData.url}
+                value={formData.url || ''}
                 onChange={handleChange}
                 required
               />
