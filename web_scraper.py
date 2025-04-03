@@ -1,14 +1,17 @@
 import trafilatura
 import re
 import json
+import time
+import random
+import requests
 from typing import Dict, List, Any, Tuple, Optional
 from urllib.parse import urlparse
 
 class WebScraper:
-    """Advanced web scraper with content extraction and parsing capabilities"""
+    """Advanced web scraper with content extraction and parsing capabilities with anti-blocking measures"""
     
     def __init__(self):
-        """Initialize the WebScraper instance"""
+        """Initialize the WebScraper instance with anti-blocking techniques"""
         # Common property patterns for real estate
         self.property_patterns = {
             'address': r'\b\d+\s+[A-Za-z0-9\s,]+(?:Avenue|Lane|Road|Boulevard|Drive|Street|Ave|Ln|Rd|Blvd|Dr|St)\.?(?:\s+[A-Za-z]+)?\b',
@@ -17,10 +20,38 @@ class WebScraper:
             'beds': r'\b\d{1,2}\s*(?:bed|bedroom)s?\b',
             'baths': r'\b\d{1,2}(?:\.\d)?(?:\+)?\s*(?:bath|bathroom)s?\b'
         }
+        
+        # Rotating user agents to prevent blocking
+        self.user_agents = [
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36',
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.2 Safari/605.1.15',
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
+            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+            'Mozilla/5.0 (iPad; CPU OS 16_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/109.0.5414.83 Mobile/15E148 Safari/604.1'
+        ]
+        
+        # Request headers
+        self.default_headers = {
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'DNT': '1',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'none',
+            'Sec-Fetch-User': '?1',
+            'Cache-Control': 'max-age=0',
+        }
+        
+        # Retry configuration
+        self.max_retries = 3
+        self.retry_delay = 2  # seconds
 
     def extract_content(self, url: str) -> Dict[str, Any]:
         """
-        Extract and structure content from a URL
+        Extract and structure content from a URL with anti-blocking measures
         
         Args:
             url: The URL to scrape
@@ -31,10 +62,10 @@ class WebScraper:
         # Extract domain for context
         domain = self._extract_domain(url)
         
-        # Get raw content
-        downloaded = trafilatura.fetch_url(url)
+        # Apply anti-blocking measures and get content
+        downloaded = self._fetch_with_retry(url)
         if not downloaded:
-            raise Exception(f"Failed to download content from {url}")
+            raise Exception(f"Failed to download content from {url} after multiple attempts")
             
         # Extract main text content
         text_content = trafilatura.extract(downloaded)
@@ -202,6 +233,60 @@ class WebScraper:
         domain = parsed_url.netloc
         return domain
     
+    def _fetch_with_retry(self, url: str) -> Optional[str]:
+        """
+        Fetch URL content with anti-blocking measures and retry logic
+        
+        Args:
+            url: The URL to fetch
+            
+        Returns:
+            The downloaded content as string or None if failed
+        """
+        for attempt in range(self.max_retries):
+            try:
+                # Randomize user agent
+                user_agent = random.choice(self.user_agents)
+                headers = self.default_headers.copy()
+                headers['User-Agent'] = user_agent
+                
+                # Add randomized delay between requests
+                if attempt > 0:
+                    # Exponential backoff with jitter
+                    delay = self.retry_delay * (2 ** attempt) * (0.5 + random.random())
+                    time.sleep(delay)
+                
+                print(f"Fetching {url} (Attempt {attempt+1}/{self.max_retries})")
+                
+                # Try with trafilatura first (which handles common anti-scraping)
+                downloaded = trafilatura.fetch_url(url, headers=headers)
+                
+                # If trafilatura fails, try with requests as backup
+                if not downloaded:
+                    # Add a random delay to appear more human-like
+                    time.sleep(1 + random.random() * 2)
+                    
+                    response = requests.get(
+                        url, 
+                        headers=headers, 
+                        timeout=30,
+                        allow_redirects=True
+                    )
+                    response.raise_for_status()
+                    downloaded = response.text
+                
+                if downloaded:
+                    return downloaded
+                    
+            except Exception as e:
+                print(f"Attempt {attempt+1} failed: {str(e)}")
+                # Last attempt failed
+                if attempt == self.max_retries - 1:
+                    print(f"All attempts to fetch {url} failed.")
+                    return None
+        
+        return None
+        
     def _extract_structured_data(self, content: str, url: str, domain: str) -> Dict[str, Any]:
         """Extract structured data based on content type"""
         content_type = self.detect_content_type(url, content)
@@ -223,7 +308,7 @@ class WebScraper:
 def get_website_text_content(url: str) -> str:
     """
     This function takes a url and returns the main text content of the website.
-    The text content is extracted using trafilatura and easier to understand.
+    The text content is extracted using trafilatura with anti-blocking measures.
     The results are better for summarization by LLM before consumption by the user.
 
     Args:
@@ -232,10 +317,22 @@ def get_website_text_content(url: str) -> str:
     Returns:
         str: The extracted text content from the website
     """
-    # Send a request to the website
-    downloaded = trafilatura.fetch_url(url)
-    text = trafilatura.extract(downloaded)
-    return text
+    # Use advanced scraper with anti-blocking measures
+    scraper = WebScraper()
+    try:
+        # Get the content with anti-blocking measures
+        downloaded = scraper._fetch_with_retry(url)
+        if not downloaded:
+            return "Failed to download content from the website."
+            
+        # Extract text content
+        text = trafilatura.extract(downloaded)
+        if not text:
+            return "Downloaded the page but couldn't extract meaningful text content."
+            
+        return text
+    except Exception as e:
+        return f"Error extracting content: {str(e)}"
 
 
 def get_structured_website_content(url: str) -> Dict[str, Any]:
