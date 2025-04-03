@@ -75,6 +75,15 @@ export default function WorkflowTemplateComponent({ template }: WorkflowTemplate
           { type: "filter", name: "Filter Results", config: { condition: "amount > 5000" } },
           { type: "create", name: "Create Leads", config: { status: "new" } }
         ];
+      case "advanced-scraper-workflow":
+        return [
+          { type: "scrape", name: "Structured Data Extraction", config: { source: "fsbo", useStructured: true } },
+          { type: "filter", name: "Filter High-Value Properties", config: { condition: "price > 300000" } },
+          { type: "score", name: "Score Properties", config: { algorithm: "potential_roi" } },
+          { type: "filter", name: "Filter High-Score Properties", config: { condition: "score > 70" } },
+          { type: "create", name: "Create Qualified Leads", config: { status: "hot" } },
+          { type: "document", name: "Generate Outreach Letter", config: { template: "property-interest" } }
+        ];
       default:
         return [];
     }

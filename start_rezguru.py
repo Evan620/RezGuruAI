@@ -11,7 +11,7 @@ import time
 import sys
 import json
 from flask import Flask, request, jsonify
-from web_scraper import get_website_text_content
+from web_scraper import get_website_text_content, get_structured_website_content
 import threading
 
 # Create Flask app for the Python web scraper API
@@ -41,6 +41,42 @@ def extract_content():
         })
     except Exception as e:
         print(f"Error extracting content: {str(e)}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+@app.route('/api/scraper/structured', methods=['POST'])
+def extract_structured_content():
+    """API endpoint to extract and analyze structured content from a URL"""
+    data = request.json
+    
+    if not data or 'url' not in data:
+        return jsonify({"error": "URL is required"}), 400
+    
+    try:
+        url = data['url']
+        print(f"Extracting structured content from {url}...")
+        
+        # Get structured content with our enhanced scraper
+        extracted_data = get_structured_website_content(url)
+        
+        # Count properties found
+        property_count = len(extracted_data.get('structured_data', {}).get('properties', []))
+        content_type = extracted_data.get('structured_data', {}).get('content_type', 'unknown')
+        
+        print(f"Found {property_count} properties of type {content_type}")
+        
+        return jsonify({
+            "success": True,
+            "url": url,
+            "content_type": content_type,
+            "property_count": property_count,
+            "data": extracted_data,
+            "text_length": len(extracted_data.get('text', '')) if extracted_data.get('text') else 0
+        })
+    except Exception as e:
+        print(f"Error extracting structured content: {str(e)}")
         return jsonify({
             "success": False,
             "error": str(e)

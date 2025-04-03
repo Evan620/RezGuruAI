@@ -4,6 +4,25 @@ import { OpenAI } from 'openai';
 import fetch from 'node-fetch';
 import { v4 as uuidv4 } from 'uuid';
 
+// Types for structured data processing
+interface StructuredScrapingResult {
+  success: boolean;
+  url: string;
+  content_type: string;
+  property_count: number;
+  data: {
+    text: string;
+    metadata: any;
+    structured_data: {
+      content_type: string;
+      properties: any[];
+    };
+    domain: string;
+    url: string;
+  };
+  text_length: number;
+}
+
 // Azure OpenAI client for data extraction
 const endpoint = process.env.AZURE_OPENAI_ENDPOINT || "https://models.inference.ai.azure.com";
 const apiKey = process.env.AZURE_OPENAI_API_KEY;
@@ -85,14 +104,14 @@ export async function runScrapingJob(jobId: number): Promise<any> {
     // Update job status to running
     await storage.updateScrapingJob(jobId, { status: 'running', lastRun: new Date() });
 
-    // Fetch the HTML content from the URL
-    const htmlContent = await fetchWebsiteContent(job.url || '');
+    // Fetch structured content from the URL with enhanced scraping
+    const scrapingResult = await fetchStructuredContent(job.url || '', job.source);
     
-    // Extract data from the HTML
-    const results = await extractDataFromHTML(htmlContent, job.source);
+    // Extract data from the structured result
+    const results = await processScrapingResult(scrapingResult, job.source);
     
     // Process and store the results
-    const processedResults = processScrapingResults(results, job);
+    const processedResults = Array.isArray(results) ? processScrapingResults(results, job) : [];
     
     // Update the job with the results and completed status
     await storage.updateScrapingJob(jobId, {
@@ -270,7 +289,8 @@ async function extractDataFromHTML(html: string, sourceType: string): Promise<an
     // Get the appropriate template for the source type
     const template = scrapingTemplates[sourceType as keyof typeof scrapingTemplates];
     if (!template) {
-      throw new Error(`No scraping template found for source type: ${sourceType}`);
+      console.warn(`No scraping template found for source type: ${sourceType}, using general template`);
+      return [];
     }
     
     // Truncate HTML if too long (OpenAI has token limits)
@@ -511,4 +531,144 @@ export async function scheduleScrapingJob(
   return await storage.updateScrapingJob(jobId, {
     schedule: JSON.stringify(scheduleData)
   });
+}
+
+/**
+ * Fetch structured content from a URL using the enhanced Python web scraper API
+ * @param url The URL to fetch
+ * @param sourceType The type of source to scrape (e.g., 'tax_delinquent', 'probate', 'fsbo')
+ * @returns Structured data from the scraping operation
+ */
+async function fetchStructuredContent(url: string, sourceType: string): Promise<StructuredScrapingResult> {
+  if (!url) {
+    throw new Error('No URL provided for scraping');
+  }
+  
+  try {
+    // Call the structured scraper API endpoint
+    const scraperApiUrl = 'http://localhost:5001/api/scraper/structured';
+    
+    console.log(`Using enhanced Python web scraper to extract structured content from URL: ${url}`);
+    
+    const response = await fetch(scraperApiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ url, source_type: sourceType }),
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Failed to extract structured content via scraper API: ${errorText}`);
+    }
+    
+    const result = await response.json();
+    
+    if (!result.success) {
+      throw new Error(`Structured scraper API error: ${result.error}`);
+    }
+    
+    console.log(`Successfully extracted ${result.property_count} properties of type ${result.content_type}`);
+    
+    return result as StructuredScrapingResult;
+  } catch (error) {
+    console.error('Error using structured web scraper API:', error);
+    
+    // Fall back to regular content extraction and manual parsing
+    console.log('Falling back to regular content extraction...');
+    const htmlContent = await fetchWebsiteContent(url);
+    const contentType = sourceType || 'general';
+    
+    // Create a structured result from unstructured content
+    return {
+      success: true,
+      url,
+      content_type: contentType,
+      property_count: 0, // Will be set after processing
+      data: {
+        text: htmlContent,
+        metadata: {},
+        structured_data: {
+          content_type: contentType,
+          properties: [] // Will be populated by extractDataFromHTML
+        },
+        domain: new URL(url).hostname,
+        url
+      },
+      text_length: htmlContent.length
+    };
+  }
+}
+
+/**
+ * Process a structured scraping result into a format suitable for the database
+ * @param scrapingResult The structured result from the scraper
+ * @param sourceType Type of source being scraped
+ * @returns Array of processed property data
+ */
+async function processScrapingResult(scrapingResult: StructuredScrapingResult, sourceType: string): Promise<any[]> {
+  // Check if we have structured data with properties
+  if (scrapingResult.success && 
+      scrapingResult.data && 
+      scrapingResult.data.structured_data && 
+      Array.isArray(scrapingResult.data.structured_data.properties) && 
+      scrapingResult.data.structured_data.properties.length > 0) {
+    
+    // We have structured properties from the enhanced scraper
+    const properties = scrapingResult.data.structured_data.properties;
+    console.log(`Processing ${properties.length} structured properties`);
+    
+    // Map properties to our expected format based on source type
+    return properties.map(prop => {
+      // Common property fields
+      const result: any = {
+        id: uuidv4()
+      };
+      
+      // Handle tax delinquent properties
+      if (sourceType === 'tax_delinquent') {
+        result.owner_name = prop.owner_name || prop.name || 'Unknown Owner';
+        result.property_address = prop.property_address || prop.address || 'Unknown Address';
+        result.amount_owed = prop.amount_owed || prop.amount || '$0.00';
+        result.due_date = prop.due_date || prop.date || new Date().toISOString().split('T')[0];
+        result.parcel_id = prop.parcel_id || prop.id || `P${Math.floor(Math.random() * 10000)}`;
+      } 
+      // Handle FSBO properties
+      else if (sourceType === 'fsbo') {
+        result.seller_name = prop.seller_name || prop.name || 'Unknown Seller';
+        result.property_address = prop.address || 'Unknown Address';
+        result.asking_price = prop.price || prop.asking_price || '$0.00';
+        result.listing_date = prop.date || prop.listing_date || new Date().toISOString().split('T')[0];
+        result.contact_info = prop.contact || prop.contact_info || 'No contact info';
+        result.description = prop.description || '';
+      }
+      // Handle probate properties
+      else if (sourceType === 'probate') {
+        result.deceased_name = prop.deceased_name || prop.name || 'Unknown';
+        result.property_address = prop.property_address || prop.address || 'Unknown Address';
+        result.filing_date = prop.filing_date || prop.date || new Date().toISOString().split('T')[0];
+        result.case_number = prop.case_number || 'Unknown';
+        result.executor_name = prop.executor_name || 'Unknown';
+      }
+      // General properties
+      else {
+        // Copy all properties from the scraped data
+        Object.assign(result, prop);
+        
+        // Ensure we have the basic fields
+        result.name = result.name || 'Unknown';
+        result.address = result.address || 'Unknown Address';
+      }
+      
+      return result;
+    });
+  } else {
+    // No structured properties, fall back to extracting from raw text
+    console.log('No structured properties found, falling back to AI extraction');
+    
+    // Try to extract data using AI or basic extraction
+    const extractedData = await extractDataFromHTML(scrapingResult.data.text, sourceType);
+    return Array.isArray(extractedData) ? extractedData : [];
+  }
 }

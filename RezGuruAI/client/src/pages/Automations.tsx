@@ -63,6 +63,14 @@ export default function Automations() {
       iconColor: "text-green-600"
     },
     {
+      id: "advanced-scraper-workflow",
+      name: "Advanced Data Scraping",
+      description: "Structured data extraction & qualification",
+      icon: "fas fa-robot",
+      iconBgColor: "bg-purple-100",
+      iconColor: "text-purple-600"
+    },
+    {
       id: "custom-workflow",
       name: "Custom Workflow",
       description: "Create from scratch",
@@ -120,6 +128,7 @@ export default function Automations() {
                     <option value="outreach-sequence">Outreach Sequence</option>
                     <option value="contract-generator">Contract Generator</option>
                     <option value="scraper-workflow">Scraper Workflow</option>
+                    <option value="advanced-scraper-workflow">Advanced Data Scraping</option>
                     <option value="custom-workflow">Custom Workflow</option>
                   </select>
                 </div>
