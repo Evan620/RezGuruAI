@@ -3,12 +3,15 @@ import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 import { useLocalStorage } from "../../hooks/use-local-storage";
 import { FloatingChatButton } from "../chat/FloatingChatButton";
+import OnboardingTour from "../OnboardingTour";
+import { useAuth } from "@/hooks/use-auth";
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 export default function Layout({ children }: LayoutProps) {
+  const { user } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 1024);
   const [theme, setTheme] = useLocalStorage<"dark" | "light">("theme", "dark");
   
@@ -62,6 +65,7 @@ export default function Layout({ children }: LayoutProps) {
         </main>
       </div>
       <FloatingChatButton />
+      <OnboardingTour isAuthenticated={!!user} />
     </div>
   );
 }

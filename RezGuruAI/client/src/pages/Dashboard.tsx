@@ -58,6 +58,7 @@ export default function Dashboard() {
           </div>
           <div className="flex flex-wrap gap-2">
             <Button 
+              id="export-data-button"
               className="gap-2 tactical-button-secondary"
               onClick={() => {
                 // Generate richer sample data for export
@@ -102,6 +103,7 @@ export default function Dashboard() {
               Export Data
             </Button>
             <Button 
+              id="new-lead-button"
               className="gap-2 tactical-button"
               onClick={() => {
                 // Create a dialog for new lead creation 
@@ -292,7 +294,7 @@ export default function Dashboard() {
                   {expandedSections.metrics ? 'COLLAPSE' : 'EXPAND'}
                 </Button>
               </div>
-              <div className="card-base p-4">
+              <div id="metrics-section" className="card-base p-4">
                 {expandedSections.metrics && <MetricsOverview />}
               </div>
             </div>
@@ -313,7 +315,7 @@ export default function Dashboard() {
                   {expandedSections.analytics ? 'COLLAPSE' : 'EXPAND'}
                 </Button>
               </div>
-              <div className="card-base p-4">
+              <div id="analytics-section" className="card-base p-4">
                 {expandedSections.analytics && <AnalyticsSection />}
               </div>
             </div>
@@ -334,7 +336,7 @@ export default function Dashboard() {
                   {expandedSections.leads ? 'COLLAPSE' : 'EXPAND'}
                 </Button>
               </div>
-              <div className="card-base p-4">
+              <div id="leads-section" className="card-base p-4">
                 {expandedSections.leads && <LeadKanban />}
               </div>
             </div>
@@ -355,7 +357,7 @@ export default function Dashboard() {
                   {expandedSections.automation ? 'COLLAPSE' : 'EXPAND'}
                 </Button>
               </div>
-              <div className="card-base p-4">
+              <div id="workflows-section" className="card-base p-4">
                 {expandedSections.automation && <AutomationWorkflow />}
               </div>
             </div>
@@ -376,7 +378,7 @@ export default function Dashboard() {
                   {expandedSections.documents ? 'COLLAPSE' : 'EXPAND'}
                 </Button>
               </div>
-              <div className="card-base p-4">
+              <div id="documents-section" className="card-base p-4">
                 {expandedSections.documents && <DocumentSection />}
               </div>
             </div>

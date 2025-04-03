@@ -87,6 +87,7 @@ export default function Sidebar({ isOpen, onClose, theme, onToggleTheme }: Sideb
             <Link 
               key={item.name}
               href={item.path}
+              id={`sidebar-${item.path.replace('/', '')}`}
               className={cn(
                 "flex items-center px-4 py-3 text-sm rounded group transition-all duration-200 card-hover",
                 isActive(item.path)
@@ -127,6 +128,7 @@ export default function Sidebar({ isOpen, onClose, theme, onToggleTheme }: Sideb
               <Link 
                 key={item.name}
                 href={item.path}
+                id={`sidebar-${item.path.replace('/', '')}`}
                 className={cn(
                   "flex items-center px-4 py-3 text-sm rounded group transition-all duration-200 card-hover",
                   isActive(item.path)

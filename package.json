@@ -32,6 +32,7 @@
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.4.1",
     "shadcn-ui": "^0.9.5",
+    "shepherd.js": "^14.5.0",
     "tailwind-merge": "^3.1.0",
     "tailwindcss": "^4.1.1",
     "tsx": "^4.19.3",
