@@ -2,21 +2,50 @@ import { Workflow } from "@/lib/types";
 import { formatDistanceToNow } from "date-fns";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useState } from "react";
 
 interface WorkflowCardProps {
   workflow: Workflow;
 }
 
+interface WorkflowResult {
+  success: boolean;
+  message: string;
+  workflow: Workflow;
+  details?: string;
+  results?: {
+    processed: number;
+    actions: Array<{
+      type: string;
+      status: string;
+      details: string;
+    }>;
+    [key: string]: any;
+  };
+}
+
 export default function WorkflowCard({ workflow }: WorkflowCardProps) {
+  // State for execution results and error message
+  const [showResults, setShowResults] = useState(false);
+  const [executionResults, setExecutionResults] = useState<WorkflowResult | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   // Run workflow mutation
   const runWorkflowMutation = useMutation({
     mutationFn: async () => {
       const response = await apiRequest("POST", `/api/workflows/${workflow.id}/run`, {});
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data: WorkflowResult) => {
+      // Store execution results
+      setExecutionResults(data);
+      setShowResults(true);
+      
       // Invalidate the workflows query to fetch updated data
       queryClient.invalidateQueries({ queryKey: ["/api/workflows"] });
+    },
+    onError: (error: any) => {
+      setErrorMessage(error?.message || "Failed to run workflow");
     },
   });
 
@@ -112,20 +141,99 @@ export default function WorkflowCard({ workflow }: WorkflowCardProps) {
           )}
         </button>
         
-        {runWorkflowMutation.isSuccess && (
-          <div className="text-xs text-green-500">
+        {runWorkflowMutation.isSuccess && !showResults && (
+          <div className="text-xs text-green-500 flex items-center cursor-pointer" onClick={() => setShowResults(true)}>
             <i className="fas fa-check-circle mr-1"></i>
-            Workflow executed successfully
+            Workflow executed successfully 
+            <i className="fas fa-chevron-down ml-1.5"></i>
           </div>
         )}
         
         {runWorkflowMutation.isError && (
           <div className="text-xs text-red-500">
             <i className="fas fa-exclamation-circle mr-1"></i>
-            Error running workflow
+            {errorMessage || "Error running workflow"}
           </div>
         )}
       </div>
+      
+      {/* Execution Results */}
+      {showResults && executionResults && (
+        <div className="mt-4 border border-[#2A2A3A] rounded bg-[#0F0F1A] p-3">
+          <div className="flex justify-between items-center mb-2">
+            <h5 className="text-sm font-medium text-[#F8F9FA]">Execution Results</h5>
+            <button 
+              onClick={() => setShowResults(false)} 
+              className="text-[#CCCED0] hover:text-[#F8F9FA] text-xs"
+            >
+              <i className="fas fa-times"></i>
+            </button>
+          </div>
+          
+          {executionResults.success === false ? (
+            <div className="bg-red-500/10 border border-red-500/20 p-2 rounded text-xs text-[#F8F9FA]">
+              <p><i className="fas fa-exclamation-triangle text-red-500 mr-1.5"></i> {executionResults.message}</p>
+              {executionResults.details && <p className="mt-1 text-[#CCCED0]">{executionResults.details}</p>}
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 gap-2 mb-3">
+                <div className="bg-[#1A1A2E] border border-[#2A2A3A] p-2 rounded">
+                  <span className="text-xs text-[#CCCED0]">Actions Processed</span>
+                  <div className="text-[#6E56CF] text-sm font-medium">{executionResults.results?.processed || 0}</div>
+                </div>
+                
+                {executionResults.results?.filteredLeads !== undefined && (
+                  <div className="bg-[#1A1A2E] border border-[#2A2A3A] p-2 rounded">
+                    <span className="text-xs text-[#CCCED0]">Leads Filtered</span>
+                    <div className="text-[#FF6B6B] text-sm font-medium">{executionResults.results.filteredLeads}</div>
+                  </div>
+                )}
+                
+                {executionResults.results?.documentsGenerated !== undefined && (
+                  <div className="bg-[#1A1A2E] border border-[#2A2A3A] p-2 rounded">
+                    <span className="text-xs text-[#CCCED0]">Documents Generated</span>
+                    <div className="text-[#06D6A0] text-sm font-medium">{executionResults.results.documentsGenerated}</div>
+                  </div>
+                )}
+                
+                {executionResults.results?.leadsScored !== undefined && (
+                  <div className="bg-[#1A1A2E] border border-[#2A2A3A] p-2 rounded">
+                    <span className="text-xs text-[#CCCED0]">Leads Scored</span>
+                    <div className="text-[#00F5D4] text-sm font-medium">{executionResults.results.leadsScored}</div>
+                  </div>
+                )}
+              </div>
+              
+              <div className="text-xs text-[#CCCED0] font-medium mb-1.5">Action Details</div>
+              <div className="space-y-1.5 max-h-40 overflow-y-auto text-xs">
+                {executionResults.results?.actions.map((action, index) => (
+                  <div key={index} className="flex items-start gap-2">
+                    <div className={`
+                      rounded-full w-4 h-4 flex-shrink-0 flex items-center justify-center mt-0.5
+                      ${action.status === 'completed' ? 'bg-green-500/20 text-green-500' : 
+                        action.status === 'error' ? 'bg-red-500/20 text-red-500' : 
+                        'bg-yellow-500/20 text-yellow-500'}
+                    `}>
+                      {action.status === 'completed' ? (
+                        <i className="fas fa-check text-[8px]"></i>
+                      ) : action.status === 'error' ? (
+                        <i className="fas fa-times text-[8px]"></i>
+                      ) : (
+                        <i className="fas fa-exclamation text-[8px]"></i>
+                      )}
+                    </div>
+                    <div>
+                      <div className="text-[#F8F9FA] font-medium capitalize">{action.type}</div>
+                      <div className="text-[#CCCED0] text-[10px]">{action.details}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }
