@@ -1,11 +1,25 @@
 import { Workflow } from "@/lib/types";
 import { formatDistanceToNow } from "date-fns";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 interface WorkflowCardProps {
   workflow: Workflow;
 }
 
 export default function WorkflowCard({ workflow }: WorkflowCardProps) {
+  // Run workflow mutation
+  const runWorkflowMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", `/api/workflows/${workflow.id}/run`, {});
+      return response.json();
+    },
+    onSuccess: () => {
+      // Invalidate the workflows query to fetch updated data
+      queryClient.invalidateQueries({ queryKey: ["/api/workflows"] });
+    },
+  });
+
   // Get workflow step icons based on actions
   const workflowIcons = workflow.actions.map(action => {
     switch(action.type) {
@@ -36,6 +50,11 @@ export default function WorkflowCard({ workflow }: WorkflowCardProps) {
   const lastRunText = workflow.lastRun 
     ? formatDistanceToNow(new Date(workflow.lastRun), { addSuffix: true }) 
     : "Never";
+  
+  // Handle run button click
+  const handleRunClick = () => {
+    runWorkflowMutation.mutate();
+  };
   
   return (
     <div className="bg-[#1A1A2E] border border-[#2A2A3A] hover:border-[#6E56CF]/50 rounded p-4 mb-4 transition-all">
@@ -71,6 +90,41 @@ export default function WorkflowCard({ workflow }: WorkflowCardProps) {
         <div className="text-xs text-[#CCCED0] monospace-text whitespace-nowrap">
           Last: <span className="text-[#6E56CF]">{lastRunText}</span>
         </div>
+      </div>
+      
+      {/* Run Button and Status */}
+      <div className="mt-4 flex justify-between items-center">
+        <button 
+          onClick={handleRunClick}
+          disabled={runWorkflowMutation.isPending}
+          className="bg-[#6E56CF] hover:bg-[#5A46B0] text-white text-xs py-1.5 px-3 rounded-md flex items-center transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {runWorkflowMutation.isPending ? (
+            <>
+              <i className="fas fa-spinner fa-spin mr-1.5"></i>
+              Running...
+            </>
+          ) : (
+            <>
+              <i className="fas fa-play mr-1.5"></i>
+              Run Workflow
+            </>
+          )}
+        </button>
+        
+        {runWorkflowMutation.isSuccess && (
+          <div className="text-xs text-green-500">
+            <i className="fas fa-check-circle mr-1"></i>
+            Workflow executed successfully
+          </div>
+        )}
+        
+        {runWorkflowMutation.isError && (
+          <div className="text-xs text-red-500">
+            <i className="fas fa-exclamation-circle mr-1"></i>
+            Error running workflow
+          </div>
+        )}
       </div>
     </div>
   );

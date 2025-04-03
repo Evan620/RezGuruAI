@@ -43,6 +43,12 @@ export interface IStorage {
   createScrapingJob(job: InsertScrapingJob): Promise<ScrapingJob>;
   updateScrapingJob(id: number, job: Partial<ScrapingJob>): Promise<ScrapingJob | undefined>;
   deleteScrapingJob(id: number): Promise<boolean>;
+  
+  // Analytics operations
+  getLeadSourcesAnalytics(userId: number, timeframe?: string): Promise<any[]>;
+  getLeadActivityAnalytics(userId: number, timeframe?: string): Promise<any[]>;
+  getPropertyTypesAnalytics(userId: number, timeframe?: string): Promise<any[]>;
+  getRevenueAnalytics(userId: number, timeframe?: string): Promise<any[]>;
 }
 
 // In-memory storage implementation
@@ -516,6 +522,51 @@ export class MemStorage implements IStorage {
   
   async deleteScrapingJob(id: number): Promise<boolean> {
     return this.scrapingJobs.delete(id);
+  }
+  
+  // Analytics operations
+  async getLeadSourcesAnalytics(userId: number, timeframe: string = 'year'): Promise<any[]> {
+    // Return sample data for in-memory storage
+    return [
+      { name: "Tax Delinquent", value: 42, color: "#6E56CF" },
+      { name: "Probate", value: 28, color: "#FF6B6B" },
+      { name: "FSBO", value: 19, color: "#00F5D4" },
+      { name: "MLS", value: 11, color: "#FFD166" }
+    ];
+  }
+  
+  async getLeadActivityAnalytics(userId: number, timeframe: string = 'year'): Promise<any[]> {
+    // Return sample data for in-memory storage
+    return [
+      { month: "Jan", leads: 12, contacts: 10, deals: 4 },
+      { month: "Feb", leads: 18, contacts: 12, deals: 5 },
+      { month: "Mar", leads: 22, contacts: 15, deals: 7 },
+      { month: "Apr", leads: 28, contacts: 18, deals: 9 },
+      { month: "May", leads: 35, contacts: 22, deals: 11 },
+      { month: "Jun", leads: 42, contacts: 28, deals: 12 }
+    ];
+  }
+  
+  async getPropertyTypesAnalytics(userId: number, timeframe: string = 'year'): Promise<any[]> {
+    // Return sample data for in-memory storage
+    return [
+      { name: "Single Family", value: 45, color: "#6E56CF" },
+      { name: "Multi-Family", value: 25, color: "#FF6B6B" },
+      { name: "Commercial", value: 15, color: "#00F5D4" },
+      { name: "Land", value: 15, color: "#FFD166" }
+    ];
+  }
+  
+  async getRevenueAnalytics(userId: number, timeframe: string = 'year'): Promise<any[]> {
+    // Return sample data for in-memory storage
+    return [
+      { month: "Jan", revenue: 12000, profit: 4800, cost: 7200 },
+      { month: "Feb", revenue: 15000, profit: 6000, cost: 9000 },
+      { month: "Mar", revenue: 18000, profit: 7200, cost: 10800 },
+      { month: "Apr", revenue: 22000, profit: 8800, cost: 13200 },
+      { month: "May", revenue: 25000, profit: 10000, cost: 15000 },
+      { month: "Jun", revenue: 30000, profit: 12000, cost: 18000 }
+    ];
   }
 }
 

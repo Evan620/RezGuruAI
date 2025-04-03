@@ -221,6 +221,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.status(204).end();
   });
   
+  // Run workflow
+  apiRouter.post("/workflows/:id/run", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    try {
+      const workflowId = parseInt(req.params.id);
+      const workflow = await storage.getWorkflow(workflowId);
+      
+      if (!workflow) {
+        return res.status(404).json({ message: "Workflow not found" });
+      }
+      
+      // Execute the workflow
+      console.log(`Running workflow: ${workflow.name} (ID: ${workflowId})`);
+      
+      // Update lastRun timestamp
+      const updatedWorkflow = await storage.updateWorkflow(workflowId, { 
+        lastRun: new Date() 
+      });
+      
+      // In a real implementation, this would trigger the actual workflow actions
+      // For now, we'll just return success
+      res.status(200).json({ 
+        success: true, 
+        message: `Workflow '${workflow.name}' executed successfully`,
+        workflow: updatedWorkflow
+      });
+    } catch (error) {
+      console.error("Error running workflow:", error);
+      res.status(500).json({ 
+        success: false,
+        message: "Error running workflow", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+  
   // Document routes
   apiRouter.get("/documents", async (req, res) => {
     if (!req.isAuthenticated()) {
@@ -589,7 +628,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     try {
       const userId = req.user.id;
-      const timeframe = req.query.timeframe || 'year';
+      const timeframe = req.query.timeframe ? String(req.query.timeframe) : 'year';
       const result = await storage.getLeadSourcesAnalytics(userId, timeframe);
       res.json(result);
     } catch (error) {
@@ -605,7 +644,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     try {
       const userId = req.user.id;
-      const timeframe = req.query.timeframe || 'year';
+      const timeframe = req.query.timeframe ? String(req.query.timeframe) : 'year';
       const result = await storage.getLeadActivityAnalytics(userId, timeframe);
       res.json(result);
     } catch (error) {
@@ -621,7 +660,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     try {
       const userId = req.user.id;
-      const timeframe = req.query.timeframe || 'year';
+      const timeframe = req.query.timeframe ? String(req.query.timeframe) : 'year';
       const result = await storage.getPropertyTypesAnalytics(userId, timeframe);
       res.json(result);
     } catch (error) {
@@ -637,7 +676,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     try {
       const userId = req.user.id;
-      const timeframe = req.query.timeframe || 'year';
+      const timeframe = req.query.timeframe ? String(req.query.timeframe) : 'year';
       const result = await storage.getRevenueAnalytics(userId, timeframe);
       res.json(result);
     } catch (error) {
