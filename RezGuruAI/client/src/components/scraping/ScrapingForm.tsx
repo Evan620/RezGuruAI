@@ -21,8 +21,7 @@ export default function ScrapingForm() {
   
   const createScrapingJobMutation = useMutation({
     mutationFn: async (data: Partial<InsertScrapingJob>) => {
-      const response = await apiRequest("POST", "/api/scraping-jobs", data);
-      return response.json();
+      return apiRequest("/api/scraping-jobs", "POST", data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/scraping-jobs"] });

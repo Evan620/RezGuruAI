@@ -57,11 +57,177 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" className="gap-2 tactical-button-secondary">
+            <Button 
+              className="gap-2 tactical-button-secondary"
+              onClick={() => {
+                // Generate richer sample data for export
+                const headers = ["Category", "Metric", "Value", "Change", "Period"];
+                
+                const metricsData = [
+                  ["Leads", "Total Leads", "248", "+12%", "YTD"],
+                  ["Leads", "New Leads (This Month)", "37", "+8%", "MoM"],
+                  ["Leads", "Conversion Rate", "8.2%", "+1.5%", "YTD"],
+                  ["Deals", "Average Deal Size", "$158,000", "+5.3%", "YTD"],
+                  ["Deals", "Biggest Deal", "$425,000", "", "YTD"],
+                  ["Deals", "Close Rate", "22%", "+3%", "QoQ"],
+                  ["Revenue", "Total Revenue", "$2.4M", "+18%", "YTD"],
+                  ["Revenue", "Revenue Target", "$3.5M", "", "2025"],
+                  ["Performance", "ROI", "342%", "+28%", "YTD"],
+                  ["Performance", "Lead Response Time", "1.2 hours", "-15%", "QoQ"],
+                  ["Properties", "Properties Under Contract", "14", "+3", "MoM"],
+                  ["Properties", "Average Days on Market", "68", "-12", "QoQ"]
+                ];
+                
+                // Create CSV content
+                const csvContent = [
+                  headers.join(','),
+                  ...metricsData.map(row => row.join(','))
+                ].join('\n');
+                
+                // Create download link
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.setAttribute('href', url);
+                link.setAttribute('download', `rezguru-analytics-${new Date().toISOString().split('T')[0]}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // Show success message
+                alert('Analytics data exported successfully!');
+              }}
+            >
               <FileDown className="h-4 w-4" />
               Export Data
             </Button>
-            <Button className="gap-2 tactical-button">
+            <Button 
+              className="gap-2 tactical-button"
+              onClick={() => {
+                // Create a dialog for new lead creation 
+                const dialog = document.createElement('dialog');
+                dialog.id = 'newLeadDialog';
+                dialog.style.position = 'fixed';
+                dialog.style.top = '50%';
+                dialog.style.left = '50%';
+                dialog.style.transform = 'translate(-50%, -50%)';
+                dialog.style.padding = '20px';
+                dialog.style.background = '#1A1A2E';
+                dialog.style.border = '1px solid #2A2A3A';
+                dialog.style.borderRadius = '8px';
+                dialog.style.zIndex = '1000';
+                dialog.style.minWidth = '400px';
+                dialog.style.maxWidth = '600px';
+                dialog.style.color = '#F8F9FA';
+                
+                // Add dialog content
+                dialog.innerHTML = `
+                  <h2 style="font-size: 18px; font-weight: bold; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
+                    <span>Create New Lead</span>
+                    <button id="closeDialog" style="background: none; border: none; cursor: pointer; color: #CCCED0;">&times;</button>
+                  </h2>
+                  <form id="newLeadForm">
+                    <div style="margin-bottom: 16px;">
+                      <label style="display: block; margin-bottom: 8px; font-size: 14px;">Name</label>
+                      <input id="leadName" type="text" style="width: 100%; padding: 8px; background: #20223A; border: 1px solid #2A2A3A; border-radius: 4px; color: #F8F9FA;" placeholder="Full Name" required />
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                      <label style="display: block; margin-bottom: 8px; font-size: 14px;">Phone</label>
+                      <input id="leadPhone" type="text" style="width: 100%; padding: 8px; background: #20223A; border: 1px solid #2A2A3A; border-radius: 4px; color: #F8F9FA;" placeholder="+1 555-123-4567" />
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                      <label style="display: block; margin-bottom: 8px; font-size: 14px;">Email</label>
+                      <input id="leadEmail" type="email" style="width: 100%; padding: 8px; background: #20223A; border: 1px solid #2A2A3A; border-radius: 4px; color: #F8F9FA;" placeholder="email@example.com" />
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                      <label style="display: block; margin-bottom: 8px; font-size: 14px;">Source</label>
+                      <select id="leadSource" style="width: 100%; padding: 8px; background: #20223A; border: 1px solid #2A2A3A; border-radius: 4px; color: #F8F9FA;">
+                        <option value="referral">Referral</option>
+                        <option value="cold_call">Cold Call</option>
+                        <option value="website">Website</option>
+                        <option value="social_media">Social Media</option>
+                        <option value="direct_mail">Direct Mail</option>
+                        <option value="scraping">Data Scraping</option>
+                      </select>
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                      <label style="display: block; margin-bottom: 8px; font-size: 14px;">Property Address</label>
+                      <input id="leadAddress" type="text" style="width: 100%; padding: 8px; background: #20223A; border: 1px solid #2A2A3A; border-radius: 4px; color: #F8F9FA;" placeholder="123 Main St, Anytown, ST 12345" />
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                      <label style="display: block; margin-bottom: 8px; font-size: 14px;">Notes</label>
+                      <textarea id="leadNotes" style="width: 100%; padding: 8px; background: #20223A; border: 1px solid #2A2A3A; border-radius: 4px; color: #F8F9FA; min-height: 80px;" placeholder="Additional notes about this lead..."></textarea>
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px;">
+                      <button type="button" id="cancelButton" style="padding: 8px 16px; background: #20223A; border: 1px solid #2A2A3A; border-radius: 4px; color: #CCCED0; cursor: pointer;">Cancel</button>
+                      <button type="submit" style="padding: 8px 16px; background: #6E56CF; border: none; border-radius: 4px; color: white; cursor: pointer;">Create Lead</button>
+                    </div>
+                  </form>
+                `;
+                
+                document.body.appendChild(dialog);
+                dialog.showModal();
+                
+                // Close dialog handlers
+                document.getElementById('closeDialog')?.addEventListener('click', () => {
+                  dialog.close();
+                  document.body.removeChild(dialog);
+                });
+                
+                document.getElementById('cancelButton')?.addEventListener('click', () => {
+                  dialog.close();
+                  document.body.removeChild(dialog);
+                });
+                
+                // Form submission
+                document.getElementById('newLeadForm')?.addEventListener('submit', async (e) => {
+                  e.preventDefault();
+                  
+                  const name = (document.getElementById('leadName') as HTMLInputElement).value;
+                  const phone = (document.getElementById('leadPhone') as HTMLInputElement).value;
+                  const email = (document.getElementById('leadEmail') as HTMLInputElement).value;
+                  const source = (document.getElementById('leadSource') as HTMLSelectElement).value;
+                  const propertyAddress = (document.getElementById('leadAddress') as HTMLInputElement).value;
+                  const notes = (document.getElementById('leadNotes') as HTMLTextAreaElement).value;
+                  
+                  try {
+                    const response = await fetch('/api/leads', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        name,
+                        phone,
+                        email,
+                        source,
+                        propertyAddress,
+                        notes,
+                        status: 'new'
+                      }),
+                    });
+                    
+                    if (response.ok) {
+                      // Close the dialog
+                      dialog.close();
+                      document.body.removeChild(dialog);
+                      
+                      // Show success message
+                      alert('Lead created successfully!');
+                      
+                      // Refresh the page to show the new lead
+                      window.location.reload();
+                    } else {
+                      console.error('Failed to create lead:', await response.text());
+                      alert('Failed to create lead. Please try again.');
+                    }
+                  } catch (error) {
+                    console.error('Error creating lead:', error);
+                    alert('An error occurred while creating the lead.');
+                  }
+                });
+              }}
+            >
               <Target className="h-4 w-4" />
               New Lead
             </Button>

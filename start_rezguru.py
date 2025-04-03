@@ -9,9 +9,46 @@ import os
 import subprocess
 import time
 import sys
+import json
+from flask import Flask, request, jsonify
+from web_scraper import get_website_text_content
+import threading
+
+# Create Flask app for the Python web scraper API
+app = Flask(__name__)
+app.config['JSON_SORT_KEYS'] = False
 
 def print_status(message):
     print(f"\n[INFO] {message}")
+
+@app.route('/api/scraper/extract', methods=['POST'])
+def extract_content():
+    """API endpoint to extract content from a URL using trafilatura"""
+    data = request.json
+    
+    if not data or 'url' not in data:
+        return jsonify({"error": "URL is required"}), 400
+    
+    try:
+        url = data['url']
+        extracted_text = get_website_text_content(url)
+        
+        return jsonify({
+            "success": True,
+            "url": url,
+            "extracted_text": extracted_text,
+            "length": len(extracted_text) if extracted_text else 0
+        })
+    except Exception as e:
+        print(f"Error extracting content: {str(e)}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+def start_python_server():
+    """Start the Flask server for the Python web scraper API"""
+    app.run(host='0.0.0.0', port=5001)
 
 def main():
     # Check if RezGuruAI directory exists
@@ -30,8 +67,18 @@ def main():
         f.write(f"AZURE_OPENAI_API_KEY={os.environ.get('AZURE_OPENAI_API_KEY', '')}\n")
         f.write(f"AZURE_OPENAI_ENDPOINT=https://models.inference.ai.azure.com\n")
         f.write(f"SESSION_SECRET={os.environ.get('SESSION_SECRET', '')}\n")
+        f.write(f"SCRAPER_API_URL=http://localhost:5001/api/scraper/extract\n")
     
-    # Start the server directly using node
+    # Start the Python web scraper server in a separate thread
+    print_status("Starting Python web scraper service on port 5001...")
+    scraper_thread = threading.Thread(target=start_python_server, daemon=True)
+    scraper_thread.start()
+    
+    # Wait for the scraper server to start
+    time.sleep(2)
+    print_status("Python web scraper service is now running on http://localhost:5001")
+    
+    # Start the Node.js server
     print_status("Starting RezGuruAI application on port 5000...")
     os.environ['PORT'] = '5000'
     

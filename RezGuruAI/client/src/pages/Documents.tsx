@@ -47,7 +47,161 @@ export default function Documents() {
           <p className="mt-1 text-muted-foreground">Create and manage real estate documents</p>
         </div>
         <div className="flex space-x-2">
-          <Button variant="outline">
+          <Button 
+            variant="outline"
+            onClick={() => {
+              // Create a dialog for document upload
+              const dialog = document.createElement('dialog');
+              dialog.id = 'uploadDocumentDialog';
+              dialog.style.position = 'fixed';
+              dialog.style.top = '50%';
+              dialog.style.left = '50%';
+              dialog.style.transform = 'translate(-50%, -50%)';
+              dialog.style.padding = '20px';
+              dialog.style.background = '#fff';
+              dialog.style.borderRadius = '8px';
+              dialog.style.zIndex = '1000';
+              dialog.style.minWidth = '400px';
+              dialog.style.maxWidth = '600px';
+              
+              // Add dialog content
+              dialog.innerHTML = `
+                <h2 style="font-size: 18px; font-weight: bold; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
+                  <span>Upload Document</span>
+                  <button id="closeDialog" style="background: none; border: none; cursor: pointer; font-size: 20px;">&times;</button>
+                </h2>
+                <form id="uploadDocumentForm">
+                  <div style="margin-bottom: 16px;">
+                    <label style="display: block; margin-bottom: 8px; font-size: 14px;">Document Name</label>
+                    <input id="documentName" type="text" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" placeholder="Document Name" required />
+                  </div>
+                  <div style="margin-bottom: 16px;">
+                    <label style="display: block; margin-bottom: 8px; font-size: 14px;">Document Type</label>
+                    <select id="documentType" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                      <option value="contract">Contract</option>
+                      <option value="dispute_letter">Dispute Letter</option>
+                      <option value="offer">Offer</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  <div style="margin-bottom: 16px;">
+                    <label style="display: block; margin-bottom: 8px; font-size: 14px;">Associated Lead (Optional)</label>
+                    <select id="documentLead" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                      <option value="">None</option>
+                    </select>
+                  </div>
+                  <div style="margin-bottom: 16px;">
+                    <label style="display: block; margin-bottom: 8px; font-size: 14px;">File</label>
+                    <div style="border: 2px dashed #ddd; padding: 20px; text-align: center; border-radius: 4px;">
+                      <p>Drag and drop your file here, or</p>
+                      <input type="file" id="documentFile" style="margin-top: 10px;" />
+                    </div>
+                  </div>
+                  <div style="margin-bottom: 16px;">
+                    <label style="display: block; margin-bottom: 8px; font-size: 14px;">Notes</label>
+                    <textarea id="documentNotes" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; min-height: 80px;" placeholder="Additional notes about this document..."></textarea>
+                  </div>
+                  <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px;">
+                    <button type="button" id="cancelButton" style="padding: 8px 16px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;">Cancel</button>
+                    <button type="submit" style="padding: 8px 16px; background: #6E56CF; border: none; border-radius: 4px; color: white; cursor: pointer;">Upload Document</button>
+                  </div>
+                </form>
+              `;
+              
+              document.body.appendChild(dialog);
+              dialog.showModal();
+              
+              // Populate leads dropdown
+              fetch('/api/leads')
+                .then(response => response.json())
+                .then(leads => {
+                  const leadSelect = document.getElementById('documentLead') as HTMLSelectElement;
+                  if (leadSelect && leads && Array.isArray(leads)) {
+                    leads.forEach(lead => {
+                      const option = document.createElement('option');
+                      option.value = String(lead.id);
+                      option.textContent = lead.name;
+                      leadSelect.appendChild(option);
+                    });
+                  }
+                })
+                .catch(error => {
+                  console.error('Error fetching leads:', error);
+                });
+              
+              // Close dialog handlers
+              document.getElementById('closeDialog')?.addEventListener('click', () => {
+                dialog.close();
+                document.body.removeChild(dialog);
+              });
+              
+              document.getElementById('cancelButton')?.addEventListener('click', () => {
+                dialog.close();
+                document.body.removeChild(dialog);
+              });
+              
+              // Form submission
+              document.getElementById('uploadDocumentForm')?.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const name = (document.getElementById('documentName') as HTMLInputElement).value;
+                const type = (document.getElementById('documentType') as HTMLSelectElement).value;
+                const leadId = (document.getElementById('documentLead') as HTMLSelectElement).value;
+                const notes = (document.getElementById('documentNotes') as HTMLTextAreaElement).value;
+                const fileInput = document.getElementById('documentFile') as HTMLInputElement;
+                
+                if (!fileInput.files || fileInput.files.length === 0) {
+                  alert('Please select a file to upload.');
+                  return;
+                }
+                
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = async (event) => {
+                  const content = event.target?.result as string || '';
+                  
+                  try {
+                    const response = await fetch('/api/documents', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        name,
+                        type,
+                        leadId: leadId ? parseInt(leadId) : null,
+                        content,
+                        notes,
+                        format: file.type,
+                        status: 'draft'
+                      }),
+                    });
+                    
+                    if (response.ok) {
+                      // Close the dialog
+                      dialog.close();
+                      document.body.removeChild(dialog);
+                      
+                      // Show success message
+                      alert('Document uploaded successfully!');
+                      
+                      // Refresh the page to show the new document
+                      window.location.reload();
+                    } else {
+                      console.error('Failed to upload document:', await response.text());
+                      alert('Failed to upload document. Please try again.');
+                    }
+                  } catch (error) {
+                    console.error('Error uploading document:', error);
+                    alert('An error occurred while uploading the document.');
+                  }
+                };
+                
+                reader.readAsText(file);
+              });
+            }}
+          >
             <Upload className="mr-2 h-4 w-4" /> Upload
           </Button>
           <Button onClick={() => setIsGeneratorOpen(true)}>
