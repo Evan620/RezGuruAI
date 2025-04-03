@@ -13,44 +13,7 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "RezGuruAI Fixer"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "run_rezguru"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "RezGuruAI-Server"
-
-[[workflows.workflow]]
-name = "RezGuruAI Fixer"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python clone_and_fix.py"
-waitForPort = 5000
-
-[[workflows.workflow]]
-name = "run_rezguru"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python clone_and_fix.py"
 
 [[workflows.workflow]]
 name = "RezGuruAI-Server"

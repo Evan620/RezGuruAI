@@ -1,10 +1,8 @@
 [project]
-name = "repl-nix-workspace"
+name = "rezguru-ai-launcher"
 version = "0.1.0"
-description = "Add your description here"
+description = "RezGuruAI Application Launcher"
 requires-python = ">=3.11"
 dependencies = [
-    "beautifulsoup4>=4.13.3",
     "python-dotenv>=1.1.0",
-    "requests>=2.32.3",
 ]
