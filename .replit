@@ -1,16 +1,10 @@
-<<<<<<< HEAD
-modules = ["python-3.11", "nodejs-20", "python3", "postgresql-16"]
-=======
 modules = ["nodejs-20", "web", "postgresql-16"]
 run = "npm run dev"
 hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
->>>>>>> origin/main
 
 [nix]
 channel = "stable-24_05"
 
-<<<<<<< HEAD
-=======
 [deployment]
 deploymentTarget = "autoscale"
 build = ["npm", "run", "build"]
@@ -20,7 +14,6 @@ run = ["npm", "run", "start"]
 localPort = 5000
 externalPort = 80
 
->>>>>>> origin/main
 [workflows]
 runButton = "Project"
 
@@ -31,17 +24,10 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-<<<<<<< HEAD
-args = "RezGuruAI-Server"
-
-[[workflows.workflow]]
-name = "RezGuruAI-Server"
-=======
 args = "Start application"
 
 [[workflows.workflow]]
 name = "Start application"
->>>>>>> origin/main
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -52,21 +38,5 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-<<<<<<< HEAD
-args = "python start_rezguru.py"
-waitForPort = 5000
-
-[deployment]
-run = ["sh", "-c", "python clone_and_fix.py"]
-
-[[ports]]
-localPort = 5000
-externalPort = 80
-
-[[ports]]
-localPort = 5001
-externalPort = 3000
-=======
 args = "npm run dev"
 waitForPort = 5000
->>>>>>> origin/main
